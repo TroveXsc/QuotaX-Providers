@@ -5,9 +5,9 @@
     "type": "quotaxProviderCatalog",
     "sourceId": "quotax-stable",
     "coverage": "completeSourceSnapshot",
-    "publicationSequence": 1,
-    "publishedAt": "2026-10-31T10:13:53.993Z",
-    "expiresAt": "2027-01-29T10:13:53.993Z",
+    "publicationSequence": 2,
+    "publishedAt": "2026-10-31T11:54:08.818Z",
+    "expiresAt": "2027-01-29T11:54:08.818Z",
     "entries": [
       {
         "providerId": "com.quotax.claude-subscription",
@@ -29,9 +29,9 @@
       },
       {
         "providerId": "com.quotax.grok",
-        "releaseVersion": "1.0.1",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.1-r1/release-manifest.json",
-        "manifestSHA256": "8669243c50bbbdf5c8e2584d6b7bdc050b6d0b047983552a68a25e4538c714eb"
+        "releaseVersion": "1.0.2",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.2-r2/release-manifest.json",
+        "manifestSHA256": "6150549fa3292fb2084c1172f1225efeba488e6c6ae2ad1fa1f611d03df3f60e"
       },
       {
         "providerId": "dev.quotax.antigravity",
@@ -45,7 +45,7 @@
     {
       "algorithm": "Ed25519",
       "keyId": "quotax-provider-2026",
-      "signatureBase64": "9A/Gu61UnOc2VKz033uiQkUwp/A3LbtDfe+gFTc7XyJd/q/u/BFisVK300yWsBzAea5W+9MFndmo6sjwahxCAQ=="
+      "signatureBase64": "SUABF84tWLDi/rdIbFDzf6GxCDJE2aCmqHQkSQOTtx6DckZUlOuFhfbrQmCyX7+vlU9fZDmHTbL5mKt8ptZ7DQ=="
     }
   ]
 }

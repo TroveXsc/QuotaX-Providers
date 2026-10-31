@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-3d880c50eadacee41549059a",
+  "channel": "stable",
+  "catalogSHA256": "3d880c50eadacee41549059a476a7ce586d7d1c3f0ccdd51809d6667f02fb009",
+  "catalogSequence": 2,
+  "publishedAt": "2026-10-31T11:54:39.066Z",
+  "toolingCommit": "d7ad30cf4687835f21194e389e604721b866660d",
+  "releases": []
+}
