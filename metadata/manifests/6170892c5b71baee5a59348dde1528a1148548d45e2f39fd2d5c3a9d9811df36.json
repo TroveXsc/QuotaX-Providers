@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "dev.quotax.antigravity",
+    "releaseVersion": "1.0.1",
+    "authContractId": "antigravity-auth-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.3.0",
+    "publicationSequence": 1,
+    "publishedAt": "2026-10-31T09:07:19.349Z",
+    "expiresAt": "2027-10-31T09:07:19.349Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/antigravity-v1.0.1-r1/provider.json",
+      "sha256": "4306cc49a0f779e958dc03196514fe3db4d68ed37dd83a533971c466d6e3480d",
+      "byteLength": 80444,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.icon",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [
+        "google.official-client-callback"
+      ],
+      "requiredNativeCapabilities": [
+        "provider.v3",
+        "composition.v1",
+        "ui-card.v1",
+        "decimal.exact.v1",
+        "oauth.pkce.v1",
+        "workflow.serial.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "IgDBsxyk0EF178WUXqKb9EpXrzeU6yu2vh6nrQpyPQS+WQdmtoQEY/a+OrXft6Dlcu2u/KelZCPp01xpQQv0Dg=="
+    }
+  ]
+}
