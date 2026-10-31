@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "quotax-stable",
+      "channel": "stable",
+      "catalogURL": "https://raw.githubusercontent.com/TroveXsc/QuotaX-Providers/main/channels/stable/catalog.json",
+      "allowedDownloadHosts": [
+        "raw.githubusercontent.com",
+        "github.com",
+        "release-assets.githubusercontent.com",
+        "objects.githubusercontent.com"
+      ],
+      "keys": [
+        {
+          "id": "quotax-provider-2026",
+          "algorithm": "Ed25519",
+          "publicKeyBase64": "UFwZQd3KZ7q993vIOcQ/1919TitoChr3R5k6ijYoTV8=",
+          "usages": [
+            "catalog",
+            "manifest"
+          ],
+          "notBefore": "2026-10-01T00:00:00Z",
+          "notAfter": "2031-10-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "quotax-beta",
+      "channel": "beta",
+      "catalogURL": "https://raw.githubusercontent.com/TroveXsc/QuotaX-Providers/main/channels/beta/catalog.json",
+      "allowedDownloadHosts": [
+        "raw.githubusercontent.com",
+        "github.com",
+        "release-assets.githubusercontent.com",
+        "objects.githubusercontent.com"
+      ],
+      "keys": [
+        {
+          "id": "quotax-provider-2026",
+          "algorithm": "Ed25519",
+          "publicKeyBase64": "UFwZQd3KZ7q993vIOcQ/1919TitoChr3R5k6ijYoTV8=",
+          "usages": [
+            "catalog",
+            "manifest"
+          ],
+          "notBefore": "2026-10-01T00:00:00Z",
+          "notAfter": "2031-10-01T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}

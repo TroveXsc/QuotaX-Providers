@@ -1,0 +1,40 @@
+name: Publish signed Provider artifacts
+on:
+  workflow_run:
+    workflows: ['Provider publication submitted']
+    types: [completed]
+permissions:
+  contents: write
+concurrency:
+  group: quotax-provider-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: >-
+      github.repository == 'TroveXsc/QuotaX-Providers' && github.ref == 'refs/heads/main' &&
+      github.event.workflow_run.repository.full_name == github.repository &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'publish/publication-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # Executable tooling always comes from the default branch. The triggering
+      # branch is read only as a fixed set of signed JSON files through git show.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+      - name: Fetch the frozen publication input
+        env:
+          PUBLICATION_INPUT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: git fetch --no-tags origin "$PUBLICATION_INPUT_SHA"
+      - name: Verify and publish assets, then catalog
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/publish.cjs

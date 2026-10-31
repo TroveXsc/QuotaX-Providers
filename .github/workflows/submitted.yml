@@ -1,0 +1,13 @@
+name: Provider publication submitted
+on:
+  push:
+    branches: ['publish/**']
+permissions:
+  contents: read
+jobs:
+  submitted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      # This unprivileged handoff does not check out or execute branch contents.
+      - run: echo 'Frozen signed JSON is ready for the default-branch publisher.'
