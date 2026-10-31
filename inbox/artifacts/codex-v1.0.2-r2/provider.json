@@ -1,0 +1,4401 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Codex",
+    "version": "1.0.2",
+    "description": "QuotaX 官方 Provider 示例：读取 Codex 用量窗口、credits、订阅日期与重置卡。"
+  },
+  "servers": [
+    {
+      "url": "https://chatgpt.com/backend-api"
+    }
+  ],
+  "security": [
+    {
+      "chatgptOAuth": []
+    }
+  ],
+  "paths": {
+    "/wham/usage": {
+      "get": {
+        "operationId": "getUsage",
+        "summary": "读取用量窗口与 credits",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usage"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getUsage"
+        }
+      }
+    },
+    "/accounts/check/v4-2023-04-27": {
+      "get": {
+        "operationId": "getAccountCheck",
+        "summary": "读取账号订阅",
+        "description": "按账号返回订阅权益（accounts 以账号 ID 为键，可能另有 default 条目）。v2 转换拿不到登录身份：只有全部条目指向同一账号时才采用，否则改用 getSubscription，不借用其他工作区的日期。",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountCheck"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getAccountCheck"
+        }
+      }
+    },
+    "/subscriptions": {
+      "get": {
+        "operationId": "getSubscription",
+        "summary": "读取订阅（回退）",
+        "description": "getAccountCheck 失败或无法确定账号时的回退，返回单个账号的订阅对象。",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "query",
+            "required": true,
+            "description": "由账号检查步骤返回的默认 account_id 声明式绑定；没有可用身份时拒绝该步骤。",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "example": "acct-example"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getSubscription"
+        }
+      }
+    },
+    "/wham/rate-limit-reset-credits": {
+      "get": {
+        "operationId": "getResetCredits",
+        "summary": "读取重置卡清单",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetCredits"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getResetCredits"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "chatgptOAuth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.openai.com/oauth/authorize",
+            "tokenUrl": "https://auth.openai.com/oauth/token",
+            "scopes": {
+              "openid": "身份",
+              "profile": "资料",
+              "email": "邮箱",
+              "offline_access": "刷新令牌",
+              "api.connectors.read": "Codex 读取",
+              "api.connectors.invoke": "Codex 调用"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Window": {
+        "type": "object",
+        "properties": {
+          "used_percent": {
+            "type": "number"
+          },
+          "limit_window_seconds": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "reset_at": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "RateLimit": {
+        "type": "object",
+        "properties": {
+          "primary_window": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "secondary_window": {
+            "$ref": "#/components/schemas/Window"
+          }
+        }
+      },
+      "Usage": {
+        "type": "object",
+        "properties": {
+          "plan_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rate_limit": {
+            "$ref": "#/components/schemas/RateLimit"
+          },
+          "code_review_rate_limit": {
+            "$ref": "#/components/schemas/RateLimit"
+          },
+          "additional_rate_limits": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "limit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rate_limit": {
+                  "$ref": "#/components/schemas/RateLimit"
+                }
+              }
+            }
+          },
+          "credits": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "unlimited": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "balance": {
+                "type": [
+                  "number",
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "rate_limit_reset_credits": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "available_count": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "plan_type"
+            ]
+          },
+          {
+            "required": [
+              "email"
+            ]
+          },
+          {
+            "required": [
+              "rate_limit"
+            ]
+          },
+          {
+            "required": [
+              "code_review_rate_limit"
+            ]
+          },
+          {
+            "required": [
+              "additional_rate_limits"
+            ]
+          },
+          {
+            "required": [
+              "credits"
+            ]
+          },
+          {
+            "required": [
+              "rate_limit_reset_credits"
+            ]
+          }
+        ]
+      },
+      "Instant": {
+        "type": [
+          "string",
+          "number",
+          "null"
+        ],
+        "description": "ISO 8601 时间或日期，或 Unix 秒 / 毫秒。"
+      },
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "account_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "plan_display_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "plan_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "plan_display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_active": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "will_renew": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "billing_period": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "active_until": {
+            "$ref": "#/components/schemas/Instant"
+          },
+          "entitlement": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "subscription_plan": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "has_active_subscription": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "renews_at": {
+                "$ref": "#/components/schemas/Instant"
+              },
+              "expires_at": {
+                "$ref": "#/components/schemas/Instant"
+              },
+              "cancels_at": {
+                "$ref": "#/components/schemas/Instant"
+              },
+              "billing_period": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "last_active_subscription": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "purchase_origin_platform": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "will_renew": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "AccountCheck": {
+        "type": "object",
+        "required": [
+          "accounts"
+        ],
+        "properties": {
+          "accounts": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Subscription"
+            }
+          }
+        }
+      },
+      "ResetCredits": {
+        "type": "object",
+        "required": [
+          "credits"
+        ],
+        "properties": {
+          "available_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "total_earned_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reset_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "granted_at": {
+                  "$ref": "#/components/schemas/Instant"
+                },
+                "expires_at": {
+                  "$ref": "#/components/schemas/Instant"
+                },
+                "redeemed_at": {
+                  "$ref": "#/components/schemas/Instant"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-quotax": {
+    "schemaVersion": 3,
+    "provider": {
+      "id": "com.quotax.codex",
+      "releaseVersion": "1.0.2",
+      "authContractId": "codex-auth-v1",
+      "publisher": "official",
+      "name": {
+        "key": "codex",
+        "fallback": "Codex"
+      },
+      "description": {
+        "key": "provider.description",
+        "fallback": "OpenAI Codex 的用量窗口、credits、订阅日期与重置卡。"
+      },
+      "minAppVersion": "0.5.0",
+      "iconAssetId": null,
+      "defaultLocale": "zh-Hans"
+    },
+    "engines": {
+      "jmespath": {
+        "implementation": "jmespath-swift",
+        "version": "1.1.1",
+        "revision": "129d1f18169e02d548c11d32a8df7b69a7fd32d6"
+      },
+      "jsonata": {
+        "version": "2.2.2",
+        "distribution": "bundled",
+        "bundleSHA256": "69ff11451fd9b46fadf9008b9d6c291f87de16bea99abffb48fcaa1dccab03f6"
+      },
+      "decimalProfile": "quotax-decimal-v1",
+      "requiredNativeCapabilities": [
+        "ui-card.v1",
+        "decimal.exact.v1"
+      ]
+    },
+    "strings": {
+      "zh-Hans": {
+        "window.5h": "5 小时",
+        "window.weekly": "每周",
+        "window.unknown": "窗口",
+        "window.codeReview": "代码审查",
+        "credits": "Credits",
+        "unit.credits": "credits",
+        "resetCredits": "可用重置次数",
+        "plan.plus": "Plus",
+        "plan.pro": "Pro",
+        "alert.primaryLow": "短期窗口余量不足",
+        "alert.weeklyLow": "每周窗口余量不足",
+        "subscriptionRenews": "订阅续费",
+        "subscriptionEnds": "订阅到期",
+        "resetCreditNextExpiry": "重置卡最快过期"
+      },
+      "en": {
+        "window.5h": "5 hours",
+        "window.weekly": "Weekly",
+        "window.unknown": "Window",
+        "window.codeReview": "Code review",
+        "credits": "Credits",
+        "unit.credits": "credits",
+        "resetCredits": "Resets available",
+        "plan.plus": "Plus",
+        "plan.pro": "Pro",
+        "alert.primaryLow": "Short-term window running low",
+        "alert.weeklyLow": "Weekly window running low",
+        "subscriptionRenews": "Renews",
+        "subscriptionEnds": "Subscription ends",
+        "resetCreditNextExpiry": "Next reset expires"
+      }
+    },
+    "authMethods": {
+      "primary": {
+        "kind": "oauth2",
+        "componentRef": {
+          "id": "auth.oauth2.pkce",
+          "version": 1
+        },
+        "securityScheme": "chatgptOAuth",
+        "label": {
+          "key": "label",
+          "fallback": "OAuth 2.0 授权"
+        },
+        "scope": "connection",
+        "identity": {
+          "kind": "none"
+        },
+        "extraHeaderBindings": [],
+        "authorizationCode": {
+          "clientId": "app_EMoamEEZ73f0CkXaXp7hrann",
+          "callbackProfileId": "codex.official-client-callback",
+          "pkce": "S256",
+          "state": "required",
+          "nonce": "notUsed",
+          "requestedScopes": [
+            "openid",
+            "profile",
+            "email",
+            "offline_access",
+            "api.connectors.read",
+            "api.connectors.invoke"
+          ],
+          "authorizationParameters": {
+            "id_token_add_organizations": "true",
+            "codex_cli_simplified_flow": "true",
+            "originator": "quotax"
+          }
+        },
+        "tokenExchange": {
+          "clientAuthentication": "none",
+          "requestEncoding": "application/x-www-form-urlencoded",
+          "responseMapping": {
+            "accessToken": {
+              "engine": "jmespath",
+              "expression": "access_token"
+            },
+            "tokenType": {
+              "engine": "jmespath",
+              "expression": "token_type"
+            },
+            "expiresIn": {
+              "engine": "jmespath",
+              "expression": "expires_in"
+            },
+            "refreshToken": {
+              "engine": "jmespath",
+              "expression": "refresh_token"
+            },
+            "idToken": null,
+            "grantedScopes": {
+              "engine": "jmespath",
+              "expression": "scope"
+            },
+            "scopeEncoding": "spaceDelimitedString",
+            "missingGrantedScopes": "retainPreviousOrRequested",
+            "missingRefreshToken": "keepPrevious",
+            "tokenTypePolicy": "requireBearer",
+            "missingExpiry": "unknown"
+          }
+        },
+        "refresh": {
+          "mode": "refreshToken",
+          "rotation": "atomicKeepOldUntilSuccess",
+          "invalidGrant": "reauthorizationRequired"
+        },
+        "verifyOperationId": "getUsage"
+      }
+    },
+    "policyGroups": {
+      "frequentRead": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 2,
+          "baseDelaySeconds": 2,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 300,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      },
+      "accountRead": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 2,
+          "baseDelaySeconds": 2,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 900,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      }
+    },
+    "operationRuntime": {
+      "getUsage": {
+        "policyRef": "frequentRead",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "accountRefresh",
+          "targetId": "overview"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/Usage",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      },
+      "getAccountCheck": {
+        "policyRef": "accountRead",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "accountRefresh",
+          "targetId": "overview"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/AccountCheck",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      },
+      "getSubscription": {
+        "policyRef": "accountRead",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "accountRefresh",
+          "targetId": "overview"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/Subscription",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      },
+      "getResetCredits": {
+        "policyRef": "accountRead",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "accountRefresh",
+          "targetId": "overview"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/ResetCredits",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      }
+    },
+    "sources": {
+      "self": {
+        "providerId": "com.quotax.codex",
+        "release": {
+          "kind": "thisRelease"
+        },
+        "binding": {
+          "kind": "currentConnection"
+        },
+        "allowedOperationIds": [
+          "getUsage",
+          "getAccountCheck",
+          "getResetCredits",
+          "getSubscription"
+        ]
+      }
+    },
+    "outputContracts": {
+      "MetricPayload/v1": {
+        "kind": "registered",
+        "schemaRef": "https://schemas.quotax.invalid/proposal/provider-extension/v3#/$defs/MetricPayload"
+      },
+      "AccountDetails/v1": {
+        "kind": "embedded",
+        "schemaVersion": "2020-12",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "$ref": "#/$defs/text"
+            },
+            "available": {
+              "type": "boolean"
+            },
+            "period": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "$ref": "#/$defs/time"
+                },
+                "end": {
+                  "$ref": "#/$defs/time"
+                }
+              }
+            },
+            "facts": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/fact"
+              }
+            },
+            "meters": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/meter"
+              }
+            },
+            "balances": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/balance"
+              }
+            }
+          },
+          "$defs": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "text": {
+              "description": "原样展示的文本，或引用 Provider strings 表的键；fallback 在键缺失时使用。",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "key"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                    },
+                    "fallback": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "decimal": {
+              "description": "十进制文本，保持原始精度，不经过浮点数。",
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "amount": {
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/decimal"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "unit": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "oneOf": [
+                {
+                  "required": [
+                    "currency"
+                  ]
+                },
+                {
+                  "required": [
+                    "unit"
+                  ]
+                }
+              ]
+            },
+            "meter": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "usedRatio"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "usedRatio": {
+                  "description": "已用比例，0.42 表示 42%；可以超过 1；未知为 null。",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "used": {
+                  "$ref": "#/$defs/amount"
+                },
+                "limit": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "resetAt": {
+                  "$ref": "#/$defs/time"
+                },
+                "windowSeconds": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "balance": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "amount": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "breakdown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "amount": {
+                        "$ref": "#/$defs/amount"
+                      }
+                    }
+                  }
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "amount"
+                  ]
+                },
+                {
+                  "required": [
+                    "unlimited"
+                  ],
+                  "properties": {
+                    "unlimited": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            },
+            "fact": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "count"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "amount"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "amount": {
+                          "$ref": "#/$defs/amount"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": {
+                          "$ref": "#/$defs/text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "time"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "time": {
+                          "$ref": "#/$defs/time"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "schemaSHA256": "a56704e41312de2c3844eeb0288037c9b7f26d1b295659e25110bbff9698679b"
+      }
+    },
+    "transforms": {
+      "metric.five-hour": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($windowLabel := function($seconds) {\n  $seconds = 18000 ? {\"key\": \"window.5h\", \"fallback\": \"5h\"} :\n  $seconds = 604800 ? {\"key\": \"window.weekly\", \"fallback\": \"Weekly\"} :\n  $exists($seconds) ? $string($round($seconds / 3600)) & \"h\" :\n  {\"key\": \"window.unknown\", \"fallback\": \"Window\"}\n};\n$meter := function($id, $w, $label) {\n  $exists($w.used_percent) ? {\n    \"id\": $id,\n    \"label\": $label,\n    \"usedRatio\": $w.used_percent / 100,\n    \"resetAt\": $type($w.reset_at) = \"number\" ? $fromMillis($w.reset_at * 1000),\n    \"windowSeconds\": $w.limit_window_seconds\n  }\n};\n{\n  \"meters\": [\n    $meter(\"primary\", usage.rate_limit.primary_window, $windowLabel(usage.rate_limit.primary_window.limit_window_seconds)),\n    $meter(\"secondary\", usage.rate_limit.secondary_window, $windowLabel(usage.rate_limit.secondary_window.limit_window_seconds)),\n    $meter(\"codeReview\", usage.code_review_rate_limit.primary_window, {\"key\": \"window.codeReview\", \"fallback\": \"Code review\"}),\n    usage.additional_rate_limits[$exists(limit_name)].$meter(\"additional:\" & limit_name, rate_limit.primary_window, limit_name)\n  ]\n})); $m := $raw.meters[id=\"primary\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.weekly": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($windowLabel := function($seconds) {\n  $seconds = 18000 ? {\"key\": \"window.5h\", \"fallback\": \"5h\"} :\n  $seconds = 604800 ? {\"key\": \"window.weekly\", \"fallback\": \"Weekly\"} :\n  $exists($seconds) ? $string($round($seconds / 3600)) & \"h\" :\n  {\"key\": \"window.unknown\", \"fallback\": \"Window\"}\n};\n$meter := function($id, $w, $label) {\n  $exists($w.used_percent) ? {\n    \"id\": $id,\n    \"label\": $label,\n    \"usedRatio\": $w.used_percent / 100,\n    \"resetAt\": $type($w.reset_at) = \"number\" ? $fromMillis($w.reset_at * 1000),\n    \"windowSeconds\": $w.limit_window_seconds\n  }\n};\n{\n  \"meters\": [\n    $meter(\"primary\", usage.rate_limit.primary_window, $windowLabel(usage.rate_limit.primary_window.limit_window_seconds)),\n    $meter(\"secondary\", usage.rate_limit.secondary_window, $windowLabel(usage.rate_limit.secondary_window.limit_window_seconds)),\n    $meter(\"codeReview\", usage.code_review_rate_limit.primary_window, {\"key\": \"window.codeReview\", \"fallback\": \"Code review\"}),\n    usage.additional_rate_limits[$exists(limit_name)].$meter(\"additional:\" & limit_name, rate_limit.primary_window, limit_name)\n  ]\n})); $m := $raw.meters[id=\"secondary\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexPlan": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ($exists(usage.plan_type) ? {\"plan\": {\"key\": \"plan.\" & usage.plan_type, \"fallback\": usage.plan_type}} : {}); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexWindows": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($windowLabel := function($seconds) {\n  $seconds = 18000 ? {\"key\": \"window.5h\", \"fallback\": \"5h\"} :\n  $seconds = 604800 ? {\"key\": \"window.weekly\", \"fallback\": \"Weekly\"} :\n  $exists($seconds) ? $string($round($seconds / 3600)) & \"h\" :\n  {\"key\": \"window.unknown\", \"fallback\": \"Window\"}\n};\n$meter := function($id, $w, $label) {\n  $exists($w.used_percent) ? {\n    \"id\": $id,\n    \"label\": $label,\n    \"usedRatio\": $w.used_percent / 100,\n    \"resetAt\": $type($w.reset_at) = \"number\" ? $fromMillis($w.reset_at * 1000),\n    \"windowSeconds\": $w.limit_window_seconds\n  }\n};\n{\n  \"meters\": [\n    $meter(\"primary\", usage.rate_limit.primary_window, $windowLabel(usage.rate_limit.primary_window.limit_window_seconds)),\n    $meter(\"secondary\", usage.rate_limit.secondary_window, $windowLabel(usage.rate_limit.secondary_window.limit_window_seconds)),\n    $meter(\"codeReview\", usage.code_review_rate_limit.primary_window, {\"key\": \"window.codeReview\", \"fallback\": \"Code review\"}),\n    usage.additional_rate_limits[$exists(limit_name)].$meter(\"additional:\" & limit_name, rate_limit.primary_window, limit_name)\n  ]\n})); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexCredits": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $c := usage.credits;\n  $count := usage.rate_limit_reset_credits.available_count;\n  {\n    \"balances\": [\n      ($exists($c.balance) or $c.unlimited = true) ? {\n        \"id\": \"credits\",\n        \"label\": {\"key\": \"credits\", \"fallback\": \"Credits\"},\n        \"amount\": $exists($c.balance) ? {\n          \"value\": $type($c.balance) = \"string\" ? $c.balance : $string($c.balance),\n          \"unit\": {\"key\": \"unit.credits\", \"fallback\": \"credits\"}\n        },\n        \"unlimited\": $c.unlimited = true ? true\n      }\n    ],\n    \"facts\": [\n      $exists($count) ? {\"id\": \"resetCredits\", \"label\": {\"key\": \"resetCredits\", \"fallback\": \"Resets available\"}, \"value\": {\"count\": $count}}\n    ]\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexRow": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($windowLabel := function($seconds) {\n  $seconds = 18000 ? {\"key\": \"window.5h\", \"fallback\": \"5h\"} :\n  $seconds = 604800 ? {\"key\": \"window.weekly\", \"fallback\": \"Weekly\"} :\n  $exists($seconds) ? $string($round($seconds / 3600)) & \"h\" :\n  {\"key\": \"window.unknown\", \"fallback\": \"Window\"}\n};\n$meter := function($id, $w, $label) {\n  $exists($w.used_percent) ? {\n    \"id\": $id,\n    \"label\": $label,\n    \"usedRatio\": $w.used_percent / 100,\n    \"resetAt\": $type($w.reset_at) = \"number\" ? $fromMillis($w.reset_at * 1000),\n    \"windowSeconds\": $w.limit_window_seconds\n  }\n};\n$p := usage.rate_limit.primary_window;\n$s := usage.rate_limit.secondary_window;\n{\n  \"primary\": {\"meter\": $meter(\"primary\", $p, $windowLabel($p.limit_window_seconds))},\n  \"secondary\": $exists($s.used_percent) ? {\"meter\": $meter(\"secondary\", $s, $windowLabel($s.limit_window_seconds))}\n})); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexSubscription": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "check": {
+            "operationId": "getAccountCheck",
+            "query": {
+              "engine": "jmespath",
+              "expression": "accounts.*"
+            },
+            "required": false,
+            "missingPolicy": "omitInput",
+            "sourceId": "self",
+            "root": "responseBody",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          },
+          "subscription": {
+            "operationId": "getSubscription",
+            "required": false,
+            "missingPolicy": "omitInput",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $ms := function($v) {(\n    $n := $type($v) = \"number\" ? $v : ($type($v) = \"string\" and $contains($v, /^[0-9]+(\\.[0-9]+)?$/)) ? $number($v);\n    $exists($n) ? ($n > 0 ? $round($n > 100000000000 ? $n : $n * 1000)) : ($type($v) = \"string\" ? $toMillis($v))\n  )};\n  $time := function($v) { $exists($ms($v)) ? $fromMillis($ms($v)) };\n  $bool := function($a, $b) { $type($a) = \"boolean\" ? $a : ($type($b) = \"boolean\" ? $b) };\n  /* Only explicit subscription dates count; credit grants, billing periods and quota resets are not subscription dates. */\n  $useCheck := $count(check) > 0 and $count($distinct(check.account.account_id)) = 1 and $count(check.account.account_id) = $count(check);\n  $assert($useCheck or $exists(subscription), \"subscription source unavailable for this account\");\n  $inactive := ($useCheck ? $bool((check.entitlement.has_active_subscription)[0], (check.is_active)[0]) : $bool(subscription.entitlement.has_active_subscription, subscription.is_active)) = false;\n  $willRenew := $inactive ? false : ($useCheck ? $bool((check.last_active_subscription.will_renew)[0], (check.will_renew)[0]) : $bool(subscription.last_active_subscription.will_renew, subscription.will_renew));\n  $renews := $time($useCheck ? (check.entitlement.renews_at)[0] : subscription.entitlement.renews_at);\n  $ends := $time($useCheck ? (check.entitlement.expires_at)[0] : subscription.entitlement.expires_at);\n  {\n    \"facts\": [\n      ($willRenew = true and $exists($renews)) ? {\"id\": \"subscriptionRenews\", \"label\": {\"key\": \"subscriptionRenews\", \"fallback\": \"Renews\"}, \"value\": {\"time\": $renews}} :\n      $exists($ends) ? {\"id\": \"subscriptionEnds\", \"label\": {\"key\": \"subscriptionEnds\", \"fallback\": \"Subscription ends\"}, \"value\": {\"time\": $ends}}\n    ]\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.codexResetCredits": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "resets": {
+            "operationId": "getResetCredits",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $ms := function($v) {(\n    $n := $type($v) = \"number\" ? $v : ($type($v) = \"string\" and $contains($v, /^[0-9]+(\\.[0-9]+)?$/)) ? $number($v);\n    $exists($n) ? ($n > 0 ? $round($n > 100000000000 ? $n : $n * 1000)) : ($type($v) = \"string\" ? $toMillis($v))\n  )};\n  $next := $min(resets.credits[status = \"available\"].expires_at.$ms($));\n  {\n    \"facts\": [\n      $exists($next) ? {\"id\": \"resetCreditNextExpiry\", \"label\": {\"key\": \"resetCreditNextExpiry\", \"fallback\": \"Next reset expires\"}, \"value\": {\"time\": $fromMillis($next)}}\n    ]\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "five-hour",
+        "label": {
+          "key": "five-hour",
+          "fallback": "五小时额度"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.five-hour",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "weekly",
+        "label": {
+          "key": "weekly",
+          "fallback": "每周 · 全部模型"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.weekly",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      }
+    ],
+    "primaryMetricId": "five-hour",
+    "entitlements": [],
+    "workflows": {
+      "accountRefresh": {
+        "policyRef": "accountRead",
+        "steps": [
+          {
+            "stepId": "usage",
+            "sourceId": "self",
+            "operationId": "getUsage",
+            "dependsOn": [],
+            "when": null,
+            "bindings": [],
+            "required": true,
+            "onFailure": "continueIndependent"
+          },
+          {
+            "stepId": "account",
+            "sourceId": "self",
+            "operationId": "getAccountCheck",
+            "dependsOn": [],
+            "when": null,
+            "bindings": [],
+            "required": true,
+            "onFailure": "continueIndependent"
+          },
+          {
+            "stepId": "resetCredits",
+            "sourceId": "self",
+            "operationId": "getResetCredits",
+            "dependsOn": [],
+            "when": null,
+            "bindings": [],
+            "required": true,
+            "onFailure": "continueIndependent"
+          },
+          {
+            "stepId": "subscription",
+            "sourceId": "self",
+            "operationId": "getSubscription",
+            "dependsOn": [
+              {
+                "stepId": "account",
+                "require": "succeeded"
+              }
+            ],
+            "when": null,
+            "bindings": [
+              {
+                "target": {
+                  "in": "query",
+                  "name": "account_id"
+                },
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "steps.account.response.body.accounts.default.account.account_id"
+                },
+                "missingPolicy": "failStep"
+              }
+            ],
+            "required": false,
+            "onFailure": "continueIndependent"
+          }
+        ],
+        "targets": {
+          "overview": [
+            "usage",
+            "account",
+            "resetCredits",
+            "subscription"
+          ]
+        },
+        "execution": "targetDependencyClosure",
+        "maxConcurrentSteps": 1,
+        "maxRequests": 8,
+        "maxDurationSeconds": 30,
+        "cancellation": "cancelOnConnectionDeletionAuthOrReleaseChange"
+      }
+    },
+    "assets": [],
+    "licenses": {},
+    "alerts": []
+  },
+  "x-quotax-app": {
+    "contractVersion": 1,
+    "supplementDetailOnly": [
+      "meter:additional:*"
+    ],
+    "connectionKind": "account",
+    "authMethodId": "primary",
+    "connectionFields": {},
+    "requestBindings": {},
+    "connectionEndpoint": null,
+    "resourceCollection": null,
+    "manualFacts": {},
+    "metricPresentation": {
+      "five-hour": {
+        "role": "remaining",
+        "windowSeconds": 18000,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "primary"
+        },
+        "unitLabel": "%"
+      },
+      "weekly": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "secondary"
+        },
+        "unitLabel": "%"
+      }
+    },
+    "refresh": {
+      "workflowId": "accountRefresh",
+      "targetId": "overview"
+    },
+    "reminderDefaults": {
+      "warning": 20,
+      "critical": 10
+    },
+    "availabilityRules": [
+      {
+        "blockedMetricId": "five-hour",
+        "byMetricId": "weekly",
+        "message": "每周额度已用尽，五小时余量不能单独使用。"
+      }
+    ],
+    "iconAssetId": "provider.codex",
+    "iconMonochrome": true,
+    "detailAdapterIds": [
+      "details.codexPlan",
+      "details.codexWindows",
+      "details.codexCredits",
+      "details.codexRow",
+      "details.codexSubscription",
+      "details.codexResetCredits"
+    ]
+  },
+  "x-quotax-ui": {
+    "contractVersion": 1,
+    "providerId": "com.quotax.codex",
+    "name": "Codex",
+    "imports": [],
+    "exports": [
+      {
+        "id": "com.quotax.codex:numeric",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.codex:grid",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.codex:overview",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.codex:ticks",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.codex:account",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.codex:account-detail",
+        "version": 1
+      }
+    ],
+    "componentPresets": [],
+    "cards": [
+      {
+        "id": "com.quotax.codex:numeric",
+        "version": 1,
+        "name": "numeric",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "numeric",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Codex"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 6
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 13
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 44
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 8
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.codex:grid",
+        "version": 1,
+        "name": "grid",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "grid",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Codex"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "grid",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 30
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 6
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.codex:overview",
+        "version": 1,
+        "name": "overview",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Codex"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 1,
+                  "gap": 14
+                },
+                "children": [
+                  {
+                    "id": "head",
+                    "type": "row",
+                    "style": {
+                      "gap": 8
+                    },
+                    "children": [
+                      {
+                        "id": "icon",
+                        "type": "icon",
+                        "componentRef": {
+                          "id": "qx.icon",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "assetId": {
+                            "kind": "item",
+                            "property": "assetId"
+                          }
+                        }
+                      },
+                      {
+                        "id": "label",
+                        "type": "text",
+                        "style": {
+                          "fontSize": 13
+                        },
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "item",
+                            "property": "label"
+                          }
+                        }
+                      },
+                      {
+                        "id": "value",
+                        "type": "value",
+                        "style": {
+                          "fontSize": 17,
+                          "align": "end"
+                        },
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "item",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "item",
+                            "property": "unit"
+                          }
+                        }
+                      }
+                    ],
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 4
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.codex:ticks",
+        "version": 1,
+        "name": "ticks",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "ticks",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Codex"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 34
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "segmented",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 10
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.codex:account",
+        "version": 1,
+        "name": "账号概览",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "large",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "account-card",
+            "type": "stack",
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            },
+            "children": [
+              {
+                "id": "account-header",
+                "type": "stack",
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "account-title",
+                    "type": "text",
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "context",
+                        "property": "title"
+                      }
+                    },
+                    "style": {
+                      "fontSize": 18
+                    }
+                  },
+                  {
+                    "id": "plan-info",
+                    "type": "row",
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "plan-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 12
+                        }
+                      },
+                      {
+                        "id": "plan-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    }
+                  }
+                ],
+                "style": {
+                  "gap": 6
+                },
+                "role": "header"
+              },
+              {
+                "id": "account-sections",
+                "type": "grid",
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "five-hour-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "five-hour-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "five-hour-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "five-hour-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "five-hour-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "five-hour-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "credits-and-resets",
+                    "type": "grid",
+                    "componentRef": {
+                      "id": "qx.grid",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "credits-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "credits-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "credits-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "credits-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      },
+                      {
+                        "id": "creditsUnlimited-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "creditsUnlimited-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "creditsUnlimited-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "creditsUnlimited-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      },
+                      {
+                        "id": "availableResets-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "availableResets-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "availableResets-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "availableResets-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      }
+                    ],
+                    "style": {
+                      "columns": 2,
+                      "gap": 16
+                    },
+                    "role": "item"
+                  }
+                ],
+                "style": {
+                  "columns": 2,
+                  "gap": 20
+                }
+              }
+            ],
+            "style": {
+              "gap": 16
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.codex:account-detail",
+        "version": 1,
+        "name": "账号详情",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "large",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "account-card",
+            "type": "stack",
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            },
+            "children": [
+              {
+                "id": "account-header",
+                "type": "stack",
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "account-title",
+                    "type": "text",
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "context",
+                        "property": "title"
+                      }
+                    },
+                    "style": {
+                      "fontSize": 18
+                    }
+                  },
+                  {
+                    "id": "plan-info",
+                    "type": "row",
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "plan-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 12
+                        }
+                      },
+                      {
+                        "id": "plan-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "plan",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    }
+                  }
+                ],
+                "style": {
+                  "gap": 6
+                },
+                "role": "header"
+              },
+              {
+                "id": "account-sections",
+                "type": "grid",
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "five-hour-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "five-hour-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "five-hour-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "five-hour-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "five-hour-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "five-hour-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "five-hour",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "credits-and-resets",
+                    "type": "grid",
+                    "componentRef": {
+                      "id": "qx.grid",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "credits-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "credits-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "credits-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "credits-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "credits",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      },
+                      {
+                        "id": "creditsUnlimited-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "creditsUnlimited-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "creditsUnlimited-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "creditsUnlimited-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "creditsUnlimited",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      },
+                      {
+                        "id": "availableResets-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "availableResets-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "availableResets-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "availableResets-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "availableResets",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      }
+                    ],
+                    "style": {
+                      "columns": 2,
+                      "gap": 16
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "code-review",
+                    "type": "grid",
+                    "componentRef": {
+                      "id": "qx.grid",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "codeReview-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "codeReview-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "codeReview",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "codeReview-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "codeReview",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "codeReview",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "codeReview-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "codeReview",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      },
+                      {
+                        "id": "codeReviewReset-tile",
+                        "type": "stack",
+                        "componentRef": {
+                          "id": "qx.stack",
+                          "version": 1
+                        },
+                        "children": [
+                          {
+                            "id": "codeReviewReset-label",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "codeReviewReset",
+                                "property": "label"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 12
+                            }
+                          },
+                          {
+                            "id": "codeReviewReset-value",
+                            "type": "value",
+                            "componentRef": {
+                              "id": "qx.value",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "value": {
+                                "kind": "field",
+                                "fieldId": "codeReviewReset",
+                                "property": "value"
+                              },
+                              "unit": {
+                                "kind": "field",
+                                "fieldId": "codeReviewReset",
+                                "property": "unit"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 22
+                            }
+                          },
+                          {
+                            "id": "codeReviewReset-observed",
+                            "type": "text",
+                            "componentRef": {
+                              "id": "qx.text",
+                              "version": 1
+                            },
+                            "inputs": {
+                              "text": {
+                                "kind": "field",
+                                "fieldId": "codeReviewReset",
+                                "property": "observedAt"
+                              }
+                            },
+                            "style": {
+                              "fontSize": 11
+                            }
+                          }
+                        ],
+                        "style": {
+                          "gap": 4
+                        }
+                      }
+                    ],
+                    "style": {
+                      "columns": 2,
+                      "gap": 16
+                    },
+                    "role": "item"
+                  }
+                ],
+                "style": {
+                  "columns": 2,
+                  "gap": 20
+                }
+              }
+            ],
+            "style": {
+              "gap": 16
+            }
+          }
+        }
+      }
+    ],
+    "uses": [
+      {
+        "id": "numeric",
+        "name": "numeric",
+        "cardRef": {
+          "id": "com.quotax.codex:numeric",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "grid",
+        "name": "grid",
+        "cardRef": {
+          "id": "com.quotax.codex:grid",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "overview",
+        "name": "overview",
+        "cardRef": {
+          "id": "com.quotax.codex:overview",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "ticks",
+        "name": "ticks",
+        "cardRef": {
+          "id": "com.quotax.codex:ticks",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "account",
+        "name": "账号概览",
+        "cardRef": {
+          "id": "com.quotax.codex:account",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "plan",
+              "label": "套餐",
+              "semantic": {
+                "kind": "text",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "plan_type"
+                }
+              }
+            },
+            {
+              "id": "credits",
+              "label": "Credits 余额",
+              "semantic": {
+                "kind": "number",
+                "role": "remaining",
+                "unit": "credits"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "credits.balance"
+                }
+              }
+            },
+            {
+              "id": "creditsUnlimited",
+              "label": "Credits 不限量",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "credits.unlimited"
+                }
+              }
+            },
+            {
+              "id": "availableResets",
+              "label": "可用重置",
+              "semantic": {
+                "kind": "count",
+                "role": "value",
+                "unit": "次"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "rate_limit_reset_credits.available_count"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "account-detail",
+        "name": "账号详情",
+        "cardRef": {
+          "id": "com.quotax.codex:account-detail",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "five-hour",
+              "label": "五小时额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "five-hour"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "plan",
+              "label": "套餐",
+              "semantic": {
+                "kind": "text",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "plan_type"
+                }
+              }
+            },
+            {
+              "id": "credits",
+              "label": "Credits 余额",
+              "semantic": {
+                "kind": "number",
+                "role": "remaining",
+                "unit": "credits"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "credits.balance"
+                }
+              }
+            },
+            {
+              "id": "creditsUnlimited",
+              "label": "Credits 不限量",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "credits.unlimited"
+                }
+              }
+            },
+            {
+              "id": "availableResets",
+              "label": "可用重置",
+              "semantic": {
+                "kind": "count",
+                "role": "value",
+                "unit": "次"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getUsage",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "rate_limit_reset_credits.available_count"
+                }
+              }
+            },
+            {
+              "id": "codeReview",
+              "label": "代码审查 · 剩余额度",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "transformId": "rich.codeReview"
+            },
+            {
+              "id": "codeReviewReset",
+              "label": "代码审查重置时间",
+              "semantic": {
+                "kind": "date",
+                "role": "value"
+              },
+              "transformId": "rich.codeReviewReset"
+            }
+          ],
+          "transforms": [
+            {
+              "id": "rich.codeReview",
+              "engine": "jsonata",
+              "expression": "($v := $inputs.raw; $s := $string($v); $contains($s, /^[0-9]+(\\.[0-9]+)?$/) ? $qxDecimalSubtract(\"100\", $s) : null)",
+              "inputs": [
+                {
+                  "name": "raw",
+                  "source": {
+                    "kind": "response",
+                    "connectionKey": "account",
+                    "operationId": "getUsage",
+                    "root": "body",
+                    "query": {
+                      "engine": "jmespath",
+                      "expression": "code_review_rate_limit.primary_window.used_percent"
+                    }
+                  },
+                  "required": true
+                }
+              ]
+            },
+            {
+              "id": "rich.codeReviewReset",
+              "engine": "jsonata",
+              "expression": "($s := $string($inputs.raw); $contains($s, /^[0-9]{1,10}$/) ? $fromMillis($number($s) * 1000) : null)",
+              "inputs": [
+                {
+                  "name": "raw",
+                  "source": {
+                    "kind": "response",
+                    "connectionKey": "account",
+                    "operationId": "getUsage",
+                    "root": "body",
+                    "query": {
+                      "engine": "jmespath",
+                      "expression": "code_review_rate_limit.primary_window.reset_at"
+                    }
+                  },
+                  "required": true
+                }
+              ]
+            }
+          ]
+        },
+        "surfaces": [
+          "appCard"
+        ],
+        "primary": {
+          "fieldIds": [
+            "five-hour"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.codex",
+            "required": true
+          }
+        }
+      }
+    ],
+    "anchors": {
+      "home": "account",
+      "serviceDetail": "account-detail"
+    }
+  }
+}

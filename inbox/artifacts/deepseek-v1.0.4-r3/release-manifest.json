@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "com.quotax.deepseek",
+    "releaseVersion": "1.0.4",
+    "authContractId": "deepseek-key-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.5.0",
+    "publicationSequence": 3,
+    "publishedAt": "2026-10-31T14:39:47.627Z",
+    "expiresAt": "2027-10-31T14:39:47.627Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.4-r3/provider.json",
+      "sha256": "0ca9101bda55e147af18201a9c84e0bd98cc4611f462092266bac1c48b381f8d",
+      "byteLength": 96247,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [],
+      "requiredNativeCapabilities": [
+        "provider.v3",
+        "composition.v1",
+        "ui-card.v1",
+        "decimal.exact.v1",
+        "ui-card.rich.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "bEj3+k/gU21NR784m9v2/PhNTEonf9Aa/qXUeit2d2t41RnPHd5TilDhKDAvvUY6DbWBjfvc6pcuLtoH5YyyDQ=="
+    }
+  ]
+}
