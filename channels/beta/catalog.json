@@ -5,9 +5,9 @@
     "type": "quotaxProviderCatalog",
     "sourceId": "quotax-beta",
     "coverage": "completeSourceSnapshot",
-    "publicationSequence": 1,
-    "publishedAt": "2026-10-31T09:07:19.349Z",
-    "expiresAt": "2027-01-29T09:07:19.349Z",
+    "publicationSequence": 2,
+    "publishedAt": "2026-10-31T09:42:58.877Z",
+    "expiresAt": "2027-01-29T09:42:58.877Z",
     "entries": [
       {
         "providerId": "com.quotax.claude-subscription",
@@ -23,9 +23,9 @@
       },
       {
         "providerId": "com.quotax.deepseek",
-        "releaseVersion": "1.0.2",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.2-r1/release-manifest.json",
-        "manifestSHA256": "7757ac3206ef0f50ce91d6588e7b2b82f10edca2e16c86e7939751ceb87d22ad"
+        "releaseVersion": "1.0.3",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.3-r2/release-manifest.json",
+        "manifestSHA256": "72461475de30b7bb94681f8d92fc7c627ee096f9329d55d23701c68705bc5791"
       },
       {
         "providerId": "com.quotax.grok",
@@ -45,7 +45,7 @@
     {
       "algorithm": "Ed25519",
       "keyId": "quotax-provider-2026",
-      "signatureBase64": "0fAdjR3wyGUbIj3t6Gn/FSzq2pF/O85r4yg8GLWFp5KgBc89c7+5/gcAcGSuGJpGrH9LQqNb8GpDH5s8AAskBQ=="
+      "signatureBase64": "+sf7hN6qrd8q8mmedlVtjSh0jZrpUrNXYupoHqplP6dn1szSG9R9KBhds/T+PUht6607qBPvLx1ROBc7POE4CQ=="
     }
   ]
 }
