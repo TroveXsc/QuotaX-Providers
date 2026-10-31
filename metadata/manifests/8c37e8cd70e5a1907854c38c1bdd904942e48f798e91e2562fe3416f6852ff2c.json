@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "com.quotax.claude-subscription",
+    "releaseVersion": "1.0.2",
+    "authContractId": "claude-auth-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.5.0",
+    "publicationSequence": 2,
+    "publishedAt": "2026-10-31T14:39:47.627Z",
+    "expiresAt": "2027-10-31T14:39:47.627Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/claude-v1.0.2-r2/provider.json",
+      "sha256": "bd5002afb350aea5c5d867f5e0d2e2d4068d8cf6f18a3acb9d588f4025b75654",
+      "byteLength": 127604,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.icon",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [
+        "claude.official-client-callback"
+      ],
+      "requiredNativeCapabilities": [
+        "provider.v3",
+        "composition.v1",
+        "ui-card.v1",
+        "decimal.exact.v1",
+        "ui-card.rich.v1",
+        "oauth.pkce.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "qMFblrGfspYqsIkuI31e3aaYtyFSsuwr/LgBGcArNCyrn2LGHJ70qSeM6fWm4lwtLyBdzryKv+mPwUD98+16Cw=="
+    }
+  ]
+}
