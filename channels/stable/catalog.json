@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderCatalog",
+    "sourceId": "quotax-stable",
+    "coverage": "completeSourceSnapshot",
+    "publicationSequence": 1,
+    "publishedAt": "2026-10-31T10:13:53.993Z",
+    "expiresAt": "2027-01-29T10:13:53.993Z",
+    "entries": [
+      {
+        "providerId": "com.quotax.claude-subscription",
+        "releaseVersion": "1.0.1",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/claude-v1.0.1-r1/release-manifest.json",
+        "manifestSHA256": "d43786c634a144c9d6f46fcc6babb1a4056df49e650b8afb4be6e62d2e437ea1"
+      },
+      {
+        "providerId": "com.quotax.codex",
+        "releaseVersion": "1.0.1",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/codex-v1.0.1-r1/release-manifest.json",
+        "manifestSHA256": "2d48be7316281fc5636b2ae22650a17f9a1246cd9358291b3dabd1d702b584ed"
+      },
+      {
+        "providerId": "com.quotax.deepseek",
+        "releaseVersion": "1.0.3",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.3-r2/release-manifest.json",
+        "manifestSHA256": "72461475de30b7bb94681f8d92fc7c627ee096f9329d55d23701c68705bc5791"
+      },
+      {
+        "providerId": "com.quotax.grok",
+        "releaseVersion": "1.0.1",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.1-r1/release-manifest.json",
+        "manifestSHA256": "8669243c50bbbdf5c8e2584d6b7bdc050b6d0b047983552a68a25e4538c714eb"
+      },
+      {
+        "providerId": "dev.quotax.antigravity",
+        "releaseVersion": "1.0.1",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/antigravity-v1.0.1-r1/release-manifest.json",
+        "manifestSHA256": "6170892c5b71baee5a59348dde1528a1148548d45e2f39fd2d5c3a9d9811df36"
+      }
+    ]
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "9A/Gu61UnOc2VKz033uiQkUwp/A3LbtDfe+gFTc7XyJd/q/u/BFisVK300yWsBzAea5W+9MFndmo6sjwahxCAQ=="
+    }
+  ]
+}
