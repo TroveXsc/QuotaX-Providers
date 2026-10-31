@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-d71731935d888f53aa7204f3",
+  "channel": "beta",
+  "baseCatalogSHA256": "f10151fff6e1cf77f67581727ada7d87ccc596d891eca2f40ffc701421ec13c4",
+  "catalogSHA256": "d71731935d888f53aa7204f31a9659b6a0bb30051fda7f5fceae40bf7fcc8f44",
+  "releaseTags": [
+    "deepseek-v1.0.3-r2"
+  ]
+}

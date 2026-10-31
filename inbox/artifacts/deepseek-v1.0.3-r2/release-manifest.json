@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "com.quotax.deepseek",
+    "releaseVersion": "1.0.3",
+    "authContractId": "deepseek-key-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.3.0",
+    "publicationSequence": 2,
+    "publishedAt": "2026-10-31T09:42:58.877Z",
+    "expiresAt": "2027-10-31T09:42:58.877Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.3-r2/provider.json",
+      "sha256": "edc02c39d7f198b7618cd10daa3cc3bf598c74e66cc38ed7fdc875f65a4af355",
+      "byteLength": 41304,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [],
+      "requiredNativeCapabilities": [
+        "provider.v3",
+        "composition.v1",
+        "ui-card.v1",
+        "decimal.exact.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "FZloM6U69qMyiGx1lI7cPQ9AmA6IMVdplrbypd235Kc0oc6zeKJdK7BiIc+W6thOB6fRkF7PRkBJrYAhTwLXCQ=="
+    }
+  ]
+}

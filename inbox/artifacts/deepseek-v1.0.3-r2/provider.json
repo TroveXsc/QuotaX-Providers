@@ -1,0 +1,1462 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DeepSeek",
+    "version": "1.0.1",
+    "description": "QuotaX 官方 Provider 示例：读取 DeepSeek 账户余额。"
+  },
+  "servers": [
+    {
+      "url": "https://api.deepseek.com"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/user/balance": {
+      "get": {
+        "operationId": "getBalance",
+        "summary": "查询余额",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getBalance"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Balance": {
+        "type": "object",
+        "required": [
+          "is_available",
+          "balance_infos"
+        ],
+        "properties": {
+          "is_available": {
+            "type": "boolean"
+          },
+          "balance_infos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "currency",
+                "total_balance",
+                "granted_balance",
+                "topped_up_balance"
+              ],
+              "properties": {
+                "currency": {
+                  "type": "string"
+                },
+                "total_balance": {
+                  "type": "string"
+                },
+                "granted_balance": {
+                  "type": "string"
+                },
+                "topped_up_balance": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-quotax": {
+    "schemaVersion": 3,
+    "provider": {
+      "id": "com.quotax.deepseek",
+      "releaseVersion": "1.0.3",
+      "authContractId": "deepseek-key-v1",
+      "publisher": "official",
+      "name": {
+        "key": "provider.name",
+        "fallback": "DeepSeek"
+      },
+      "description": {
+        "key": "provider.description",
+        "fallback": "通过余额 API 读取 DeepSeek 账户的可用余额。"
+      },
+      "minAppVersion": "0.3.0",
+      "iconAssetId": null,
+      "defaultLocale": "zh-Hans"
+    },
+    "engines": {
+      "jmespath": {
+        "implementation": "jmespath-swift",
+        "version": "1.1.1",
+        "revision": "129d1f18169e02d548c11d32a8df7b69a7fd32d6"
+      },
+      "jsonata": {
+        "version": "2.2.2",
+        "distribution": "bundled",
+        "bundleSHA256": "69ff11451fd9b46fadf9008b9d6c291f87de16bea99abffb48fcaa1dccab03f6"
+      },
+      "decimalProfile": "quotax-decimal-v1",
+      "requiredNativeCapabilities": [
+        "ui-card.v1",
+        "decimal.exact.v1"
+      ]
+    },
+    "strings": {
+      "zh-Hans": {},
+      "en": {}
+    },
+    "authMethods": {
+      "apiKey": {
+        "kind": "httpBearer",
+        "securityScheme": "apiKey",
+        "label": {
+          "key": "auth.key",
+          "fallback": "API Key"
+        },
+        "identity": {
+          "kind": "none"
+        },
+        "verifyOperationId": "getBalance",
+        "extraHeaderBindings": [],
+        "input": {
+          "label": {
+            "key": "auth.key",
+            "fallback": "API Key"
+          },
+          "placeholder": "",
+          "helpURL": "https://platform.deepseek.com/api_keys",
+          "maxLength": 8192
+        },
+        "normalization": "exactBytesAfterExplicitTrim"
+      }
+    },
+    "policyGroups": {
+      "standard": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 3,
+          "baseDelaySeconds": 1,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 300,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      }
+    },
+    "operationRuntime": {
+      "getBalance": {
+        "policyRef": "standard",
+        "schedulingOwner": {
+          "kind": "operation"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/Balance",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      }
+    },
+    "sources": {
+      "self": {
+        "providerId": "com.quotax.deepseek",
+        "release": {
+          "kind": "thisRelease"
+        },
+        "binding": {
+          "kind": "currentConnection"
+        },
+        "allowedOperationIds": [
+          "getBalance"
+        ]
+      }
+    },
+    "outputContracts": {
+      "MetricPayload/v1": {
+        "kind": "registered",
+        "schemaRef": "https://schemas.quotax.invalid/proposal/provider-extension/v3#/$defs/MetricPayload"
+      }
+    },
+    "transforms": {
+      "balanceCNY": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "balance": {
+            "sourceId": "self",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "root": "responseBody",
+            "operationId": "getBalance",
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($b := $inputs.balance.balance_infos[currency = \"CNY\"][0]; $exists($b) ? {\"availability\":\"available\",\"value\":{\"kind\":\"amount\",\"remaining\":$b.total_balance,\"unit\":{\"kind\":\"currency\",\"code\":\"CNY\"},\"capacity\":null},\"reset\":{\"kind\":\"none\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"none\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 65536,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "balanceUSD": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "balance": {
+            "sourceId": "self",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "root": "responseBody",
+            "operationId": "getBalance",
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($b := $inputs.balance.balance_infos[currency = \"USD\"][0]; $exists($b) ? {\"availability\":\"available\",\"value\":{\"kind\":\"amount\",\"remaining\":$b.total_balance,\"unit\":{\"kind\":\"currency\",\"code\":\"USD\"},\"capacity\":null},\"reset\":{\"kind\":\"none\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"none\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 65536,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "balanceCNY",
+        "label": {
+          "key": "metric.balanceCNY",
+          "fallback": "CNY 余额"
+        },
+        "valueKind": "amount",
+        "unit": {
+          "kind": "currency",
+          "code": "CNY"
+        },
+        "adapterId": "balanceCNY",
+        "freshForSeconds": 360,
+        "supportsUnlimited": false,
+        "entitlementKey": null,
+        "resetCapability": "none"
+      },
+      {
+        "metricId": "balanceUSD",
+        "label": {
+          "key": "metric.balanceUSD",
+          "fallback": "USD 余额"
+        },
+        "valueKind": "amount",
+        "unit": {
+          "kind": "currency",
+          "code": "USD"
+        },
+        "adapterId": "balanceUSD",
+        "freshForSeconds": 300,
+        "supportsUnlimited": false,
+        "entitlementKey": null,
+        "resetCapability": "none"
+      }
+    ],
+    "primaryMetricId": "balanceCNY",
+    "entitlements": [],
+    "workflows": {},
+    "assets": [],
+    "licenses": {},
+    "alerts": []
+  },
+  "x-quotax-ui": {
+    "contractVersion": 1,
+    "providerId": "com.quotax.deepseek",
+    "name": "DeepSeek 余额卡片",
+    "imports": [],
+    "exports": [
+      {
+        "id": "com.quotax.deepseek:numeric",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.deepseek:grid",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.deepseek:overview",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.deepseek:ticks",
+        "version": 1
+      }
+    ],
+    "componentPresets": [],
+    "cards": [
+      {
+        "id": "com.quotax.deepseek:numeric",
+        "version": 1,
+        "name": "numeric",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "numeric",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "DeepSeek"
+                  }
+                }
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 6
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 13
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 44
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 8
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.deepseek:grid",
+        "version": 1,
+        "name": "grid",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "grid",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "DeepSeek"
+                  }
+                }
+              },
+              {
+                "id": "fields",
+                "type": "grid",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 30
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 6
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.deepseek:overview",
+        "version": 1,
+        "name": "overview",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "DeepSeek"
+                  }
+                }
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 1,
+                  "gap": 14
+                },
+                "children": [
+                  {
+                    "id": "head",
+                    "type": "row",
+                    "style": {
+                      "gap": 8
+                    },
+                    "children": [
+                      {
+                        "id": "label",
+                        "type": "text",
+                        "style": {
+                          "fontSize": 13
+                        },
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "item",
+                            "property": "label"
+                          }
+                        }
+                      },
+                      {
+                        "id": "value",
+                        "type": "value",
+                        "style": {
+                          "fontSize": 17,
+                          "align": "end"
+                        },
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "item",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "item",
+                            "property": "unit"
+                          }
+                        }
+                      }
+                    ],
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 4
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.deepseek:ticks",
+        "version": 1,
+        "name": "ticks",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "ticks",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "DeepSeek"
+                  }
+                }
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 34
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "segmented",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 10
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      }
+    ],
+    "uses": [
+      {
+        "id": "balance.numeric",
+        "name": "DeepSeek numeric",
+        "cardRef": {
+          "id": "com.quotax.deepseek:numeric",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "balanceCNY",
+              "label": "CNY 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "CNY"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceCNY",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "balanceUSD",
+              "label": "USD 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "USD"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceUSD",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "serviceAvailable",
+              "label": "服务可用",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getBalance",
+                "root": "body",
+                "query": {
+                  "engine": "pointer",
+                  "expression": "/is_available"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "balanceCNY",
+            "balanceUSD"
+          ],
+          "fallback": "none"
+        },
+        "detailOnly": [
+          "serviceAvailable"
+        ],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.deepseek",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "balance.grid",
+        "name": "DeepSeek grid",
+        "cardRef": {
+          "id": "com.quotax.deepseek:grid",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "balanceCNY",
+              "label": "CNY 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "CNY"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceCNY",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "balanceUSD",
+              "label": "USD 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "USD"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceUSD",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "serviceAvailable",
+              "label": "服务可用",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getBalance",
+                "root": "body",
+                "query": {
+                  "engine": "pointer",
+                  "expression": "/is_available"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "balanceCNY",
+            "balanceUSD"
+          ],
+          "fallback": "none"
+        },
+        "detailOnly": [
+          "serviceAvailable"
+        ],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.deepseek",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "balance.overview",
+        "name": "DeepSeek overview",
+        "cardRef": {
+          "id": "com.quotax.deepseek:overview",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "balanceCNY",
+              "label": "CNY 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "CNY"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceCNY",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "balanceUSD",
+              "label": "USD 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "USD"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceUSD",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "serviceAvailable",
+              "label": "服务可用",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getBalance",
+                "root": "body",
+                "query": {
+                  "engine": "pointer",
+                  "expression": "/is_available"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "balanceCNY",
+            "balanceUSD"
+          ],
+          "fallback": "none"
+        },
+        "detailOnly": [
+          "serviceAvailable"
+        ],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.deepseek",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "balance.ticks",
+        "name": "DeepSeek ticks",
+        "cardRef": {
+          "id": "com.quotax.deepseek:ticks",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "balanceCNY",
+              "label": "CNY 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "CNY"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceCNY",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "balanceUSD",
+              "label": "USD 余额",
+              "semantic": {
+                "kind": "money",
+                "role": "remaining",
+                "unit": "USD"
+              },
+              "presentation": {
+                "content": "text",
+                "format": "source"
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "balanceUSD",
+                "field": "remainingAmount"
+              }
+            },
+            {
+              "id": "serviceAvailable",
+              "label": "服务可用",
+              "semantic": {
+                "kind": "boolean",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getBalance",
+                "root": "body",
+                "query": {
+                  "engine": "pointer",
+                  "expression": "/is_available"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "balanceCNY",
+            "balanceUSD"
+          ],
+          "fallback": "none"
+        },
+        "detailOnly": [
+          "serviceAvailable"
+        ],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.deepseek",
+            "required": true
+          }
+        }
+      }
+    ],
+    "anchors": {
+      "home": "balance.numeric",
+      "serviceDetail": "balance.overview"
+    }
+  },
+  "x-quotax-app": {
+    "contractVersion": 1,
+    "supplementDetailOnly": [],
+    "connectionKind": "account",
+    "authMethodId": "apiKey",
+    "connectionFields": {},
+    "requestBindings": {},
+    "connectionEndpoint": null,
+    "resourceCollection": null,
+    "manualFacts": {},
+    "metricPresentation": {
+      "balanceCNY": {
+        "role": "remaining",
+        "windowSeconds": null,
+        "expirySubject": null,
+        "budgetFactId": null
+      },
+      "balanceUSD": {
+        "role": "remaining",
+        "windowSeconds": null,
+        "expirySubject": null,
+        "budgetFactId": null
+      }
+    },
+    "refresh": null,
+    "reminderDefaults": {
+      "warning": 10,
+      "critical": 3
+    },
+    "availabilityRules": [],
+    "iconAssetId": "provider.deepseek",
+    "iconMonochrome": false,
+    "detailAdapterIds": []
+  }
+}
