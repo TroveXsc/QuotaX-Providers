@@ -1,0 +1,2103 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Claude 订阅",
+    "version": "1.0.1",
+    "description": "QuotaX Provider 原型定义：读取 Claude Pro / Max 订阅的 5 小时会话、每周与特定模型的周额度及额外用量。数据来自 Claude Code 使用的 OAuth 用量接口。"
+  },
+  "servers": [
+    {
+      "url": "https://api.anthropic.com"
+    }
+  ],
+  "security": [
+    {
+      "claudeOAuth": []
+    }
+  ],
+  "paths": {
+    "/api/oauth/usage": {
+      "get": {
+        "operationId": "getOAuthUsage",
+        "summary": "读取订阅用量",
+        "description": "读取当前账号的会话、每周与模型用量窗口，以及额外用量。",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthUsage"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getOAuthUsage"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "claudeOAuth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://claude.com/cai/oauth/authorize",
+            "tokenUrl": "https://platform.claude.com/v1/oauth/token",
+            "scopes": {
+              "user:profile": "账号资料",
+              "user:inference": "用量与推理"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Window": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "utilization": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "已用百分比 0–100，可能超过 100。"
+              },
+              "resets_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "OAuthUsage": {
+        "type": "object",
+        "properties": {
+          "five_hour": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "seven_day": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "seven_day_sonnet": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "seven_day_opus": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "extra_usage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "is_enabled": {
+                    "type": "boolean"
+                  },
+                  "monthly_limit": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "used_credits": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "utilization": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "currency": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "five_hour"
+            ]
+          },
+          {
+            "required": [
+              "seven_day"
+            ]
+          },
+          {
+            "required": [
+              "seven_day_sonnet"
+            ]
+          },
+          {
+            "required": [
+              "seven_day_opus"
+            ]
+          },
+          {
+            "required": [
+              "extra_usage"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "x-quotax": {
+    "schemaVersion": 3,
+    "provider": {
+      "id": "com.quotax.claude-subscription",
+      "releaseVersion": "1.0.1",
+      "authContractId": "claude-auth-v1",
+      "publisher": "official",
+      "name": {
+        "key": "claude",
+        "fallback": "Claude 订阅"
+      },
+      "description": {
+        "key": "provider.description",
+        "fallback": "查看 Claude Pro / Max 订阅额度。"
+      },
+      "minAppVersion": "0.3.0",
+      "iconAssetId": null,
+      "defaultLocale": "zh-Hans"
+    },
+    "engines": {
+      "jmespath": {
+        "implementation": "jmespath-swift",
+        "version": "1.1.1",
+        "revision": "129d1f18169e02d548c11d32a8df7b69a7fd32d6"
+      },
+      "jsonata": {
+        "version": "2.2.2",
+        "distribution": "bundled",
+        "bundleSHA256": "69ff11451fd9b46fadf9008b9d6c291f87de16bea99abffb48fcaa1dccab03f6"
+      },
+      "decimalProfile": "quotax-decimal-v1",
+      "requiredNativeCapabilities": [
+        "ui-card.v1",
+        "decimal.exact.v1"
+      ]
+    },
+    "strings": {
+      "zh-Hans": {
+        "window.session": "5 小时会话",
+        "window.weekly": "每周 · 全部模型",
+        "window.weeklyOpus": "每周 · Opus",
+        "window.weeklySonnet": "每周 · Sonnet",
+        "extra.usage": "额外用量",
+        "alert.sessionLow": "5 小时会话额度偏低",
+        "alert.weeklyLow": "每周额度偏低"
+      },
+      "en": {
+        "window.session": "5-hour session",
+        "window.weekly": "Weekly · all models",
+        "window.weeklyOpus": "Weekly · Opus",
+        "window.weeklySonnet": "Weekly · Sonnet",
+        "extra.usage": "Extra usage",
+        "alert.sessionLow": "Session low",
+        "alert.weeklyLow": "Weekly low"
+      }
+    },
+    "authMethods": {
+      "primary": {
+        "kind": "oauth2",
+        "componentRef": {
+          "id": "auth.oauth2.pkce",
+          "version": 3
+        },
+        "securityScheme": "claudeOAuth",
+        "label": {
+          "key": "label",
+          "fallback": "OAuth 2.0 授权"
+        },
+        "scope": "connection",
+        "identity": {
+          "kind": "none"
+        },
+        "extraHeaderBindings": [],
+        "authorizationCode": {
+          "clientId": "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
+          "callbackProfileId": "claude.official-client-callback",
+          "pkce": "S256",
+          "state": "required",
+          "nonce": "notUsed",
+          "requestedScopes": [
+            "user:profile",
+            "user:inference"
+          ],
+          "authorizationParameters": {
+            "code": "true"
+          }
+        },
+        "tokenExchange": {
+          "clientAuthentication": "none",
+          "requestEncoding": "application/json",
+          "responseMapping": {
+            "accessToken": {
+              "engine": "jmespath",
+              "expression": "access_token"
+            },
+            "tokenType": {
+              "engine": "jmespath",
+              "expression": "token_type"
+            },
+            "expiresIn": {
+              "engine": "jmespath",
+              "expression": "expires_in"
+            },
+            "refreshToken": {
+              "engine": "jmespath",
+              "expression": "refresh_token"
+            },
+            "idToken": null,
+            "grantedScopes": {
+              "engine": "jmespath",
+              "expression": "scope"
+            },
+            "scopeEncoding": "spaceDelimitedString",
+            "missingGrantedScopes": "retainPreviousOrRequested",
+            "missingRefreshToken": "keepPrevious",
+            "tokenTypePolicy": "requireBearer",
+            "missingExpiry": "unknown"
+          },
+          "includeState": true,
+          "includeScopeOnRefresh": true
+        },
+        "refresh": {
+          "mode": "refreshToken",
+          "rotation": "atomicKeepOldUntilSuccess",
+          "invalidGrant": "reauthorizationRequired"
+        },
+        "verifyOperationId": "getOAuthUsage"
+      }
+    },
+    "policyGroups": {
+      "subscriptionRead": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 2,
+          "baseDelaySeconds": 2,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 300,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      }
+    },
+    "operationRuntime": {
+      "getOAuthUsage": {
+        "policyRef": "subscriptionRead",
+        "schedulingOwner": {
+          "kind": "operation"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/OAuthUsage",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      }
+    },
+    "sources": {
+      "self": {
+        "providerId": "com.quotax.claude-subscription",
+        "release": {
+          "kind": "thisRelease"
+        },
+        "binding": {
+          "kind": "currentConnection"
+        },
+        "allowedOperationIds": [
+          "getOAuthUsage"
+        ]
+      }
+    },
+    "outputContracts": {
+      "MetricPayload/v1": {
+        "kind": "registered",
+        "schemaRef": "https://schemas.quotax.invalid/proposal/provider-extension/v3#/$defs/MetricPayload"
+      },
+      "AccountDetails/v1": {
+        "kind": "embedded",
+        "schemaVersion": "2020-12",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "$ref": "#/$defs/text"
+            },
+            "available": {
+              "type": "boolean"
+            },
+            "period": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "$ref": "#/$defs/time"
+                },
+                "end": {
+                  "$ref": "#/$defs/time"
+                }
+              }
+            },
+            "facts": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/fact"
+              }
+            },
+            "meters": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/meter"
+              }
+            },
+            "balances": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/balance"
+              }
+            }
+          },
+          "$defs": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "text": {
+              "description": "原样展示的文本，或引用 Provider strings 表的键；fallback 在键缺失时使用。",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "key"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                    },
+                    "fallback": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "decimal": {
+              "description": "十进制文本，保持原始精度，不经过浮点数。",
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "amount": {
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/decimal"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "unit": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "oneOf": [
+                {
+                  "required": [
+                    "currency"
+                  ]
+                },
+                {
+                  "required": [
+                    "unit"
+                  ]
+                }
+              ]
+            },
+            "meter": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "usedRatio"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "usedRatio": {
+                  "description": "已用比例，0.42 表示 42%；可以超过 1；未知为 null。",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "used": {
+                  "$ref": "#/$defs/amount"
+                },
+                "limit": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "resetAt": {
+                  "$ref": "#/$defs/time"
+                },
+                "windowSeconds": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "balance": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "amount": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "breakdown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "amount": {
+                        "$ref": "#/$defs/amount"
+                      }
+                    }
+                  }
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "amount"
+                  ]
+                },
+                {
+                  "required": [
+                    "unlimited"
+                  ],
+                  "properties": {
+                    "unlimited": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            },
+            "fact": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "count"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "amount"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "amount": {
+                          "$ref": "#/$defs/amount"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": {
+                          "$ref": "#/$defs/text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "time"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "time": {
+                          "$ref": "#/$defs/time"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "schemaSHA256": "a56704e41312de2c3844eeb0288037c9b7f26d1b295659e25110bbff9698679b"
+      }
+    },
+    "transforms": {
+      "metric.session": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getOAuthUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $meter := function($id, $w, $key, $fallback) {\n    ($exists($w) and $type($w.utilization) = \"number\") ? {\n      \"id\": $id,\n      \"label\": {\"key\": $key, \"fallback\": $fallback},\n      \"usedRatio\": $round($w.utilization / 100, 4),\n      \"resetAt\": $type($w.resets_at) = \"string\" ? $w.resets_at\n    }\n  };\n  {\n    \"meters\": [\n      $meter(\"session\", usage.five_hour, \"window.session\", \"5-hour session\"),\n      $meter(\"weekly\", usage.seven_day, \"window.weekly\", \"Weekly\"),\n      $meter(\"weeklyOpus\", usage.seven_day_opus, \"window.weeklyOpus\", \"Weekly · Opus\"),\n      $meter(\"weeklySonnet\", usage.seven_day_sonnet, \"window.weeklySonnet\", \"Weekly · Sonnet\")\n    ]\n  }\n)); $m := $raw.meters[id=\"session\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.weekly": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getOAuthUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $meter := function($id, $w, $key, $fallback) {\n    ($exists($w) and $type($w.utilization) = \"number\") ? {\n      \"id\": $id,\n      \"label\": {\"key\": $key, \"fallback\": $fallback},\n      \"usedRatio\": $round($w.utilization / 100, 4),\n      \"resetAt\": $type($w.resets_at) = \"string\" ? $w.resets_at\n    }\n  };\n  {\n    \"meters\": [\n      $meter(\"session\", usage.five_hour, \"window.session\", \"5-hour session\"),\n      $meter(\"weekly\", usage.seven_day, \"window.weekly\", \"Weekly\"),\n      $meter(\"weeklyOpus\", usage.seven_day_opus, \"window.weeklyOpus\", \"Weekly · Opus\"),\n      $meter(\"weeklySonnet\", usage.seven_day_sonnet, \"window.weeklySonnet\", \"Weekly · Sonnet\")\n    ]\n  }\n)); $m := $raw.meters[id=\"weekly\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.weekly-opus": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getOAuthUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $meter := function($id, $w, $key, $fallback) {\n    ($exists($w) and $type($w.utilization) = \"number\") ? {\n      \"id\": $id,\n      \"label\": {\"key\": $key, \"fallback\": $fallback},\n      \"usedRatio\": $round($w.utilization / 100, 4),\n      \"resetAt\": $type($w.resets_at) = \"string\" ? $w.resets_at\n    }\n  };\n  {\n    \"meters\": [\n      $meter(\"session\", usage.five_hour, \"window.session\", \"5-hour session\"),\n      $meter(\"weekly\", usage.seven_day, \"window.weekly\", \"Weekly\"),\n      $meter(\"weeklyOpus\", usage.seven_day_opus, \"window.weeklyOpus\", \"Weekly · Opus\"),\n      $meter(\"weeklySonnet\", usage.seven_day_sonnet, \"window.weeklySonnet\", \"Weekly · Sonnet\")\n    ]\n  }\n)); $m := $raw.meters[id=\"weeklyOpus\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.claudeWindows": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getOAuthUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $meter := function($id, $w, $key, $fallback) {\n    ($exists($w) and $type($w.utilization) = \"number\") ? {\n      \"id\": $id,\n      \"label\": {\"key\": $key, \"fallback\": $fallback},\n      \"usedRatio\": $round($w.utilization / 100, 4),\n      \"resetAt\": $type($w.resets_at) = \"string\" ? $w.resets_at\n    }\n  };\n  {\n    \"meters\": [\n      $meter(\"session\", usage.five_hour, \"window.session\", \"5-hour session\"),\n      $meter(\"weekly\", usage.seven_day, \"window.weekly\", \"Weekly\"),\n      $meter(\"weeklyOpus\", usage.seven_day_opus, \"window.weeklyOpus\", \"Weekly · Opus\"),\n      $meter(\"weeklySonnet\", usage.seven_day_sonnet, \"window.weeklySonnet\", \"Weekly · Sonnet\")\n    ]\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.claudeExtra": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "usage": {
+            "operationId": "getOAuthUsage",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $e := usage.extra_usage;\n  {\n    \"meters\": [\n      ($e.is_enabled = true and $type($e.monthly_limit) = \"number\" and $e.monthly_limit > 0 and $type($e.used_credits) = \"number\") ? {\n        \"id\": \"extraUsage\",\n        \"label\": {\"key\": \"extra.usage\", \"fallback\": \"Extra usage\"},\n        \"usedRatio\": $round($e.used_credits / $e.monthly_limit, 4),\n        \"used\": {\"value\": $string($round($e.used_credits, 2)), \"currency\": $exists($e.currency) ? $e.currency : \"USD\"},\n        \"limit\": {\"value\": $string($round($e.monthly_limit, 2)), \"currency\": $exists($e.currency) ? $e.currency : \"USD\"}\n      }\n    ]\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "session",
+        "label": {
+          "key": "session",
+          "fallback": "5 小时会话"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.session",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "weekly",
+        "label": {
+          "key": "weekly",
+          "fallback": "每周 · 全部模型"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.weekly",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "weekly-opus",
+        "label": {
+          "key": "weekly-opus",
+          "fallback": "每周 · Opus"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.weekly-opus",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      }
+    ],
+    "primaryMetricId": "session",
+    "entitlements": [],
+    "workflows": {},
+    "assets": [],
+    "licenses": {},
+    "alerts": []
+  },
+  "x-quotax-app": {
+    "contractVersion": 1,
+    "supplementDetailOnly": [],
+    "connectionKind": "account",
+    "authMethodId": "primary",
+    "connectionFields": {},
+    "requestBindings": {},
+    "connectionEndpoint": null,
+    "resourceCollection": null,
+    "manualFacts": {
+      "plan": {
+        "kind": "choice",
+        "role": "plan",
+        "label": "套餐",
+        "options": [
+          {
+            "value": "pro",
+            "label": "Pro"
+          },
+          {
+            "value": "max5x",
+            "label": "Max 5x"
+          },
+          {
+            "value": "max20x",
+            "label": "Max 20x"
+          },
+          {
+            "value": "team",
+            "label": "Team"
+          },
+          {
+            "value": "enterprise",
+            "label": "Enterprise"
+          }
+        ],
+        "defaultValue": "pro",
+        "help": "在 Claude 的「设置 → 账单」中查看当前套餐。"
+      },
+      "expiry": {
+        "kind": "renewalDate",
+        "role": "renewal",
+        "label": "订阅续费",
+        "allowedCycles": [
+          "none",
+          "monthly",
+          "quarterly",
+          "semiannual",
+          "annual"
+        ],
+        "defaultCycle": "monthly",
+        "help": "在服务商的账单页面查看续费日期后填写。日期过后，需要确认实际续费结果。"
+      }
+    },
+    "metricPresentation": {
+      "session": {
+        "role": "remaining",
+        "windowSeconds": 18000,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "session"
+        },
+        "unitLabel": "%"
+      },
+      "weekly": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "weekly"
+        },
+        "unitLabel": "%"
+      },
+      "weekly-opus": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "weeklyOpus"
+        },
+        "unitLabel": "%"
+      }
+    },
+    "refresh": null,
+    "reminderDefaults": {
+      "warning": 20,
+      "critical": 10
+    },
+    "availabilityRules": [
+      {
+        "blockedMetricId": "session",
+        "byMetricId": "weekly",
+        "message": "每周额度已用尽，5 小时会话余量不能单独使用。"
+      }
+    ],
+    "iconAssetId": "provider.claude",
+    "iconMonochrome": true,
+    "detailAdapterIds": [
+      "details.claudeWindows",
+      "details.claudeExtra"
+    ]
+  },
+  "x-quotax-ui": {
+    "contractVersion": 1,
+    "providerId": "com.quotax.claude-subscription",
+    "name": "Claude 订阅",
+    "imports": [],
+    "exports": [
+      {
+        "id": "com.quotax.claude-subscription:numeric",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.claude-subscription:grid",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.claude-subscription:overview",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.claude-subscription:ticks",
+        "version": 1
+      }
+    ],
+    "componentPresets": [],
+    "cards": [
+      {
+        "id": "com.quotax.claude-subscription:numeric",
+        "version": 1,
+        "name": "numeric",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "numeric",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Claude 订阅"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 6
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 13
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 44
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 8
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.claude-subscription:grid",
+        "version": 1,
+        "name": "grid",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "grid",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Claude 订阅"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "grid",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 30
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 6
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.claude-subscription:overview",
+        "version": 1,
+        "name": "overview",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Claude 订阅"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 1,
+                  "gap": 14
+                },
+                "children": [
+                  {
+                    "id": "head",
+                    "type": "row",
+                    "style": {
+                      "gap": 8
+                    },
+                    "children": [
+                      {
+                        "id": "icon",
+                        "type": "icon",
+                        "componentRef": {
+                          "id": "qx.icon",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "assetId": {
+                            "kind": "item",
+                            "property": "assetId"
+                          }
+                        }
+                      },
+                      {
+                        "id": "label",
+                        "type": "text",
+                        "style": {
+                          "fontSize": 13
+                        },
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "item",
+                            "property": "label"
+                          }
+                        }
+                      },
+                      {
+                        "id": "value",
+                        "type": "value",
+                        "style": {
+                          "fontSize": 17,
+                          "align": "end"
+                        },
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "item",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "item",
+                            "property": "unit"
+                          }
+                        }
+                      }
+                    ],
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 4
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.claude-subscription:ticks",
+        "version": 1,
+        "name": "ticks",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "ticks",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Claude 订阅"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 34
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "segmented",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 10
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      }
+    ],
+    "uses": [
+      {
+        "id": "numeric",
+        "name": "numeric",
+        "cardRef": {
+          "id": "com.quotax.claude-subscription:numeric",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "session",
+              "label": "5 小时会话",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "session"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "weekly-opus",
+              "label": "每周 · Opus",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly-opus"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "session"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.claude-subscription",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "grid",
+        "name": "grid",
+        "cardRef": {
+          "id": "com.quotax.claude-subscription:grid",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "session",
+              "label": "5 小时会话",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "session"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "weekly-opus",
+              "label": "每周 · Opus",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly-opus"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "session"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.claude-subscription",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "overview",
+        "name": "overview",
+        "cardRef": {
+          "id": "com.quotax.claude-subscription:overview",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "session",
+              "label": "5 小时会话",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "session"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "weekly-opus",
+              "label": "每周 · Opus",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly-opus"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "session"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.claude-subscription",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "ticks",
+        "name": "ticks",
+        "cardRef": {
+          "id": "com.quotax.claude-subscription:ticks",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "session",
+              "label": "5 小时会话",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "session"
+              }
+            },
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            },
+            {
+              "id": "weekly-opus",
+              "label": "每周 · Opus",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly-opus"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "session"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.claude-subscription",
+            "required": true
+          }
+        }
+      }
+    ],
+    "anchors": {
+      "home": "numeric",
+      "serviceDetail": "overview"
+    }
+  }
+}

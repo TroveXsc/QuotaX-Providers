@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-f10151fff6e1cf77f6758172",
+  "channel": "beta",
+  "baseCatalogSHA256": null,
+  "catalogSHA256": "f10151fff6e1cf77f67581727ada7d87ccc596d891eca2f40ffc701421ec13c4",
+  "releaseTags": [
+    "antigravity-v1.0.1-r1",
+    "claude-v1.0.1-r1",
+    "codex-v1.0.1-r1",
+    "deepseek-v1.0.2-r1",
+    "grok-v1.0.1-r1"
+  ]
+}

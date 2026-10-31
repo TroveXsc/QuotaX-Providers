@@ -1,0 +1,1903 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Grok",
+    "version": "1.0.1",
+    "description": "QuotaX 官方 Provider 示例：读取 Grok 订阅账单（JSON 接口）。二进制补充接口暂缓。"
+  },
+  "servers": [
+    {
+      "url": "https://cli-chat-proxy.grok.com/v1"
+    }
+  ],
+  "security": [
+    {
+      "grokOAuth": []
+    }
+  ],
+  "paths": {
+    "/billing": {
+      "get": {
+        "operationId": "getBilling",
+        "summary": "读取订阅账单",
+        "parameters": [
+          {
+            "name": "x-xai-token-auth",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "xai-grok-cli"
+            }
+          },
+          {
+            "name": "x-grok-client-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "0.2.120"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Billing"
+                }
+              }
+            }
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getBilling"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "grokOAuth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.x.ai/oauth2/authorize",
+            "tokenUrl": "https://auth.x.ai/oauth2/token",
+            "scopes": {
+              "openid": "身份",
+              "profile": "资料",
+              "email": "邮箱",
+              "offline_access": "刷新令牌",
+              "grok-cli:access": "Grok CLI",
+              "api:access": "API"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Number": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "val": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Billing": {
+        "type": "object",
+        "properties": {
+          "subscriptionTier": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "config": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "subscriptionTier": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "currentPeriod": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "type": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "start": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "end": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "creditUsagePercent": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "productUsage": {
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "monthlyLimit": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "used": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "prepaidBalance": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "onDemandCap": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "onDemandUsed": {
+                "$ref": "#/components/schemas/Number"
+              },
+              "billingPeriodStart": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "billingPeriodEnd": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "isUnifiedBillingUser": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "subscriptionTier"
+            ]
+          },
+          {
+            "required": [
+              "config"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "x-quotax": {
+    "schemaVersion": 3,
+    "provider": {
+      "id": "com.quotax.grok",
+      "releaseVersion": "1.0.1",
+      "authContractId": "grok-auth-v1",
+      "publisher": "official",
+      "name": {
+        "key": "grok",
+        "fallback": "Grok"
+      },
+      "description": {
+        "key": "provider.description",
+        "fallback": "Grok 订阅用量与余额。"
+      },
+      "minAppVersion": "0.3.0",
+      "iconAssetId": null,
+      "defaultLocale": "zh-Hans"
+    },
+    "engines": {
+      "jmespath": {
+        "implementation": "jmespath-swift",
+        "version": "1.1.1",
+        "revision": "129d1f18169e02d548c11d32a8df7b69a7fd32d6"
+      },
+      "jsonata": {
+        "version": "2.2.2",
+        "distribution": "bundled",
+        "bundleSHA256": "69ff11451fd9b46fadf9008b9d6c291f87de16bea99abffb48fcaa1dccab03f6"
+      },
+      "decimalProfile": "quotax-decimal-v1",
+      "requiredNativeCapabilities": [
+        "ui-card.v1",
+        "decimal.exact.v1"
+      ]
+    },
+    "strings": {
+      "zh-Hans": {
+        "usage.credits": "用量",
+        "balance.prepaid": "预付余额",
+        "onDemandCap": "按需上限",
+        "onDemandUsed": "按需已用",
+        "alert.creditsLow": "Grok 用量余量不足",
+        "alert.prepaidLow": "预付余额不足"
+      },
+      "en": {
+        "usage.credits": "Usage",
+        "balance.prepaid": "Prepaid balance",
+        "onDemandCap": "On-demand cap",
+        "onDemandUsed": "On-demand used",
+        "alert.creditsLow": "Grok usage running low",
+        "alert.prepaidLow": "Prepaid balance low"
+      }
+    },
+    "authMethods": {
+      "primary": {
+        "kind": "oauth2",
+        "componentRef": {
+          "id": "auth.oauth2.pkce",
+          "version": 1
+        },
+        "securityScheme": "grokOAuth",
+        "label": {
+          "key": "label",
+          "fallback": "OAuth 2.0 授权"
+        },
+        "scope": "connection",
+        "identity": {
+          "kind": "none"
+        },
+        "extraHeaderBindings": [],
+        "authorizationCode": {
+          "clientId": "b1a00492-073a-47ea-816f-4c329264a828",
+          "callbackProfileId": "grok.official-client-callback",
+          "pkce": "S256",
+          "state": "required",
+          "nonce": "notUsed",
+          "requestedScopes": [
+            "openid",
+            "profile",
+            "email",
+            "offline_access",
+            "grok-cli:access",
+            "api:access"
+          ],
+          "authorizationParameters": {}
+        },
+        "tokenExchange": {
+          "clientAuthentication": "none",
+          "requestEncoding": "application/x-www-form-urlencoded",
+          "responseMapping": {
+            "accessToken": {
+              "engine": "jmespath",
+              "expression": "access_token"
+            },
+            "tokenType": {
+              "engine": "jmespath",
+              "expression": "token_type"
+            },
+            "expiresIn": {
+              "engine": "jmespath",
+              "expression": "expires_in"
+            },
+            "refreshToken": {
+              "engine": "jmespath",
+              "expression": "refresh_token"
+            },
+            "idToken": null,
+            "grantedScopes": {
+              "engine": "jmespath",
+              "expression": "scope"
+            },
+            "scopeEncoding": "spaceDelimitedString",
+            "missingGrantedScopes": "retainPreviousOrRequested",
+            "missingRefreshToken": "keepPrevious",
+            "tokenTypePolicy": "requireBearer",
+            "missingExpiry": "unknown"
+          }
+        },
+        "refresh": {
+          "mode": "refreshToken",
+          "rotation": "atomicKeepOldUntilSuccess",
+          "invalidGrant": "reauthorizationRequired"
+        },
+        "verifyOperationId": "getBilling"
+      }
+    },
+    "policyGroups": {
+      "billingRead": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 2,
+          "baseDelaySeconds": 2,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 600,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      }
+    },
+    "operationRuntime": {
+      "getBilling": {
+        "policyRef": "billingRead",
+        "schedulingOwner": {
+          "kind": "operation"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/Billing",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      }
+    },
+    "sources": {
+      "self": {
+        "providerId": "com.quotax.grok",
+        "release": {
+          "kind": "thisRelease"
+        },
+        "binding": {
+          "kind": "currentConnection"
+        },
+        "allowedOperationIds": [
+          "getBilling"
+        ]
+      }
+    },
+    "outputContracts": {
+      "MetricPayload/v1": {
+        "kind": "registered",
+        "schemaRef": "https://schemas.quotax.invalid/proposal/provider-extension/v3#/$defs/MetricPayload"
+      },
+      "AccountDetails/v1": {
+        "kind": "embedded",
+        "schemaVersion": "2020-12",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "$ref": "#/$defs/text"
+            },
+            "available": {
+              "type": "boolean"
+            },
+            "period": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "$ref": "#/$defs/time"
+                },
+                "end": {
+                  "$ref": "#/$defs/time"
+                }
+              }
+            },
+            "facts": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/fact"
+              }
+            },
+            "meters": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/meter"
+              }
+            },
+            "balances": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/balance"
+              }
+            }
+          },
+          "$defs": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "text": {
+              "description": "原样展示的文本，或引用 Provider strings 表的键；fallback 在键缺失时使用。",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "key"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                    },
+                    "fallback": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "decimal": {
+              "description": "十进制文本，保持原始精度，不经过浮点数。",
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "amount": {
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/decimal"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "unit": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "oneOf": [
+                {
+                  "required": [
+                    "currency"
+                  ]
+                },
+                {
+                  "required": [
+                    "unit"
+                  ]
+                }
+              ]
+            },
+            "meter": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "usedRatio"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "usedRatio": {
+                  "description": "已用比例，0.42 表示 42%；可以超过 1；未知为 null。",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "used": {
+                  "$ref": "#/$defs/amount"
+                },
+                "limit": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "resetAt": {
+                  "$ref": "#/$defs/time"
+                },
+                "windowSeconds": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "balance": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "amount": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "breakdown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "amount": {
+                        "$ref": "#/$defs/amount"
+                      }
+                    }
+                  }
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "amount"
+                  ]
+                },
+                {
+                  "required": [
+                    "unlimited"
+                  ],
+                  "properties": {
+                    "unlimited": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            },
+            "fact": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "count"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "amount"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "amount": {
+                          "$ref": "#/$defs/amount"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": {
+                          "$ref": "#/$defs/text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "time"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "time": {
+                          "$ref": "#/$defs/time"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "schemaSHA256": "a56704e41312de2c3844eeb0288037c9b7f26d1b295659e25110bbff9698679b"
+      }
+    },
+    "transforms": {
+      "metric.weekly": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "billing": {
+            "operationId": "getBilling",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($num := function($v) { $type($v) = \"object\" ? ($exists($v.val) ? $v.val : 0) : $v };\n$usd := function($v) {(\n  $s := $string($num($v));\n  $assert($contains($s, /^[0-9]+$/), \"money must be non-negative integer cents\");\n  $l := $length($s);\n  {\"value\": $l <= 2 ? \"0.\" & $pad($s, -2, \"0\") : $substring($s, 0, $l - 2) & \".\" & $substring($s, $l - 2), \"currency\": \"USD\"}\n)};\n$optUsd := function($v) { $exists($v) and $contains($string($num($v)), /^[0-9]+$/) ? $usd($v) };\n$c := billing.config;\n$assert($exists($c), \"billing config missing\");\n$legacy := $not($exists($c.currentPeriod)) and $not($exists($c.creditUsagePercent)) and $not($c.isUnifiedBillingUser = true) and $exists($c.monthlyLimit);\n$ratio := $exists($c.creditUsagePercent) ? $number($num($c.creditUsagePercent)) / 100 :\n          ($legacy and $exists($c.used) and $number($num($c.monthlyLimit)) > 0) ? $number($num($c.used)) / $number($num($c.monthlyLimit)) :\n          null;\n{\n  \"meters\": [\n    ($exists($c.creditUsagePercent) or $legacy) ? {\n      \"id\": \"credits\",\n      \"label\": {\"key\": \"usage.credits\", \"fallback\": \"Usage\"},\n      \"usedRatio\": $ratio,\n      \"used\": $exists($c.used) ? $usd($c.used),\n      \"limit\": $exists($c.monthlyLimit) ? $usd($c.monthlyLimit),\n      \"resetAt\": $exists($c.currentPeriod.end) ? $c.currentPeriod.end : ($legacy ? $c.billingPeriodEnd)\n    }\n  ],\n  \"balances\": [\n    $exists($optUsd($c.prepaidBalance)) ? {\"id\": \"prepaid\", \"label\": {\"key\": \"balance.prepaid\", \"fallback\": \"Prepaid balance\"}, \"amount\": $optUsd($c.prepaidBalance)}\n  ],\n  \"facts\": [\n    $exists($optUsd($c.onDemandCap)) ? {\"id\": \"onDemandCap\", \"label\": {\"key\": \"onDemandCap\", \"fallback\": \"On-demand cap\"}, \"value\": {\"amount\": $optUsd($c.onDemandCap)}},\n    $exists($optUsd($c.onDemandUsed)) ? {\"id\": \"onDemandUsed\", \"label\": {\"key\": \"onDemandUsed\", \"fallback\": \"On-demand used\"}, \"value\": {\"amount\": $optUsd($c.onDemandUsed)}}\n  ]\n})); $m := $raw.meters[id=\"credits\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.grokPlan": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "billing": {
+            "operationId": "getBilling",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n  $c := billing.config;\n  $tier := $exists($c.subscriptionTier) ? $c.subscriptionTier : billing.subscriptionTier;\n  {\n    \"plan\": $exists($tier) ? {\"key\": \"plan.\" & $tier, \"fallback\": $tier},\n    \"period\": ($exists($c.currentPeriod.start) and $exists($c.currentPeriod.end)) ? {\"start\": $c.currentPeriod.start, \"end\": $c.currentPeriod.end}\n  }\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.grokUsage": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "billing": {
+            "operationId": "getBilling",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($num := function($v) { $type($v) = \"object\" ? ($exists($v.val) ? $v.val : 0) : $v };\n$usd := function($v) {(\n  $s := $string($num($v));\n  $assert($contains($s, /^[0-9]+$/), \"money must be non-negative integer cents\");\n  $l := $length($s);\n  {\"value\": $l <= 2 ? \"0.\" & $pad($s, -2, \"0\") : $substring($s, 0, $l - 2) & \".\" & $substring($s, $l - 2), \"currency\": \"USD\"}\n)};\n$optUsd := function($v) { $exists($v) and $contains($string($num($v)), /^[0-9]+$/) ? $usd($v) };\n$c := billing.config;\n$assert($exists($c), \"billing config missing\");\n$legacy := $not($exists($c.currentPeriod)) and $not($exists($c.creditUsagePercent)) and $not($c.isUnifiedBillingUser = true) and $exists($c.monthlyLimit);\n$ratio := $exists($c.creditUsagePercent) ? $number($num($c.creditUsagePercent)) / 100 :\n          ($legacy and $exists($c.used) and $number($num($c.monthlyLimit)) > 0) ? $number($num($c.used)) / $number($num($c.monthlyLimit)) :\n          null;\n{\n  \"meters\": [\n    ($exists($c.creditUsagePercent) or $legacy) ? {\n      \"id\": \"credits\",\n      \"label\": {\"key\": \"usage.credits\", \"fallback\": \"Usage\"},\n      \"usedRatio\": $ratio,\n      \"used\": $exists($c.used) ? $usd($c.used),\n      \"limit\": $exists($c.monthlyLimit) ? $usd($c.monthlyLimit),\n      \"resetAt\": $exists($c.currentPeriod.end) ? $c.currentPeriod.end : ($legacy ? $c.billingPeriodEnd)\n    }\n  ],\n  \"balances\": [\n    $exists($optUsd($c.prepaidBalance)) ? {\"id\": \"prepaid\", \"label\": {\"key\": \"balance.prepaid\", \"fallback\": \"Prepaid balance\"}, \"amount\": $optUsd($c.prepaidBalance)}\n  ],\n  \"facts\": [\n    $exists($optUsd($c.onDemandCap)) ? {\"id\": \"onDemandCap\", \"label\": {\"key\": \"onDemandCap\", \"fallback\": \"On-demand cap\"}, \"value\": {\"amount\": $optUsd($c.onDemandCap)}},\n    $exists($optUsd($c.onDemandUsed)) ? {\"id\": \"onDemandUsed\", \"label\": {\"key\": \"onDemandUsed\", \"fallback\": \"On-demand used\"}, \"value\": {\"amount\": $optUsd($c.onDemandUsed)}}\n  ]\n})); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.grokProducts": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "billing": {
+            "operationId": "getBilling",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ({\n  \"meters\": [\n    billing.config.productUsage[$exists(product)].{\n      \"id\": \"product:\" & product,\n      \"label\": product,\n      \"usedRatio\": $exists(usagePercent)\n        ? (usagePercent = null ? null : $number($type(usagePercent) = \"object\" ? usagePercent.val : usagePercent) / 100)\n        : 0\n    }\n  ]\n}); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.grokRow": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "billing": {
+            "operationId": "getBilling",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := (($num := function($v) { $type($v) = \"object\" ? ($exists($v.val) ? $v.val : 0) : $v };\n$usd := function($v) {(\n  $s := $string($num($v));\n  $assert($contains($s, /^[0-9]+$/), \"money must be non-negative integer cents\");\n  $l := $length($s);\n  {\"value\": $l <= 2 ? \"0.\" & $pad($s, -2, \"0\") : $substring($s, 0, $l - 2) & \".\" & $substring($s, $l - 2), \"currency\": \"USD\"}\n)};\n$optUsd := function($v) { $exists($v) and $contains($string($num($v)), /^[0-9]+$/) ? $usd($v) };\n$c := billing.config;\n$legacy := $not($exists($c.currentPeriod)) and $not($exists($c.creditUsagePercent)) and $not($c.isUnifiedBillingUser = true) and $exists($c.monthlyLimit);\n$assert($exists($c.creditUsagePercent) or $legacy, \"no usage data\");\n$ratio := $exists($c.creditUsagePercent) ? $number($num($c.creditUsagePercent)) / 100 :\n          ($exists($c.used) and $number($num($c.monthlyLimit)) > 0) ? $number($num($c.used)) / $number($num($c.monthlyLimit)) :\n          null;\n$prepaid := $optUsd($c.prepaidBalance);\n{\n  \"primary\": {\"meter\": {\n    \"id\": \"credits\",\n    \"label\": {\"key\": \"usage.credits\", \"fallback\": \"Usage\"},\n    \"usedRatio\": $ratio,\n    \"resetAt\": $exists($c.currentPeriod.end) ? $c.currentPeriod.end : ($legacy ? $c.billingPeriodEnd)\n  }},\n  \"secondary\": $exists($prepaid) ? {\"balance\": {\"id\": \"prepaid\", \"label\": {\"key\": \"balance.prepaid\", \"fallback\": \"Prepaid balance\"}, \"amount\": $prepaid}}\n})); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "weekly",
+        "label": {
+          "key": "weekly",
+          "fallback": "每周 · 全部模型"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.weekly",
+        "freshForSeconds": 1800,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      }
+    ],
+    "primaryMetricId": "weekly",
+    "entitlements": [],
+    "workflows": {},
+    "assets": [],
+    "licenses": {},
+    "alerts": []
+  },
+  "x-quotax-app": {
+    "contractVersion": 1,
+    "supplementDetailOnly": [
+      "meter:product:*",
+      "fact:onDemandUsed"
+    ],
+    "connectionKind": "account",
+    "authMethodId": "primary",
+    "connectionFields": {},
+    "requestBindings": {},
+    "connectionEndpoint": null,
+    "resourceCollection": null,
+    "manualFacts": {},
+    "metricPresentation": {
+      "weekly": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": "套餐",
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "credits"
+        },
+        "unitLabel": "%"
+      }
+    },
+    "refresh": null,
+    "reminderDefaults": {
+      "warning": 20,
+      "critical": 10
+    },
+    "availabilityRules": [],
+    "iconAssetId": "provider.grok",
+    "iconMonochrome": true,
+    "detailAdapterIds": [
+      "details.grokPlan",
+      "details.grokUsage",
+      "details.grokProducts",
+      "details.grokRow"
+    ]
+  },
+  "x-quotax-ui": {
+    "contractVersion": 1,
+    "providerId": "com.quotax.grok",
+    "name": "Grok",
+    "imports": [],
+    "exports": [
+      {
+        "id": "com.quotax.grok:numeric",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.grok:grid",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.grok:overview",
+        "version": 1
+      },
+      {
+        "id": "com.quotax.grok:ticks",
+        "version": 1
+      }
+    ],
+    "componentPresets": [],
+    "cards": [
+      {
+        "id": "com.quotax.grok:numeric",
+        "version": 1,
+        "name": "numeric",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "numeric",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Grok"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 6
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 13
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 44
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 8
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.grok:grid",
+        "version": 1,
+        "name": "grid",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "grid",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Grok"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "grid",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 30
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 6
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.grok:overview",
+        "version": 1,
+        "name": "overview",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Grok"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 1,
+                  "gap": 14
+                },
+                "children": [
+                  {
+                    "id": "head",
+                    "type": "row",
+                    "style": {
+                      "gap": 8
+                    },
+                    "children": [
+                      {
+                        "id": "icon",
+                        "type": "icon",
+                        "componentRef": {
+                          "id": "qx.icon",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "assetId": {
+                            "kind": "item",
+                            "property": "assetId"
+                          }
+                        }
+                      },
+                      {
+                        "id": "label",
+                        "type": "text",
+                        "style": {
+                          "fontSize": 13
+                        },
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "item",
+                            "property": "label"
+                          }
+                        }
+                      },
+                      {
+                        "id": "value",
+                        "type": "value",
+                        "style": {
+                          "fontSize": 17,
+                          "align": "end"
+                        },
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "item",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "item",
+                            "property": "unit"
+                          }
+                        }
+                      }
+                    ],
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 4
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "com.quotax.grok:ticks",
+        "version": 1,
+        "name": "ticks",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "ticks",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Grok"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 34
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "segmented",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 10
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      }
+    ],
+    "uses": [
+      {
+        "id": "numeric",
+        "name": "numeric",
+        "cardRef": {
+          "id": "com.quotax.grok:numeric",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.grok",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "grid",
+        "name": "grid",
+        "cardRef": {
+          "id": "com.quotax.grok:grid",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.grok",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "overview",
+        "name": "overview",
+        "cardRef": {
+          "id": "com.quotax.grok:overview",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.grok",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "ticks",
+        "name": "ticks",
+        "cardRef": {
+          "id": "com.quotax.grok:ticks",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "weekly",
+              "label": "每周 · 全部模型",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "weekly"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "com.quotax.grok",
+            "required": true
+          }
+        }
+      }
+    ],
+    "anchors": {
+      "home": "numeric",
+      "serviceDetail": "overview"
+    }
+  }
+}

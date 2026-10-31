@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "com.quotax.grok",
+    "releaseVersion": "1.0.1",
+    "authContractId": "grok-auth-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.3.0",
+    "publicationSequence": 1,
+    "publishedAt": "2026-10-31T09:07:19.349Z",
+    "expiresAt": "2027-10-31T09:07:19.349Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.1-r1/provider.json",
+      "sha256": "cb9f5bf5194ac748fca4fa4a11cbc1843f6f4404879422802af6da0a042fd517",
+      "byteLength": 61757,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.icon",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [
+        "grok.official-client-callback"
+      ],
+      "requiredNativeCapabilities": [
+        "provider.v3",
+        "composition.v1",
+        "ui-card.v1",
+        "decimal.exact.v1",
+        "oauth.pkce.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "LjKLAnJVJ3F+jKp5aV6E+MjFQ7CM7gWMS7nKFyihlpKRcclgXSDpYB6KxbeCQkr0YsYrEZojwCkiahlGd7F4Cw=="
+    }
+  ]
+}
