@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-f45a6077335e9c411244fc6d",
+  "channel": "beta",
+  "catalogSHA256": "f45a6077335e9c411244fc6d34fbddb32e3b497b701029dd93f6ed24cd4e9ab1",
+  "catalogSequence": 4,
+  "publishedAt": "2026-10-31T11:49:06.802Z",
+  "toolingCommit": "951fd7cf5e61b68a2e8c3e1e56e3b3dd76cee3f7",
+  "releases": [
+    {
+      "tag": "grok-v1.0.2-r2",
+      "id": 429903170,
+      "immutable": true
+    }
+  ]
+}
