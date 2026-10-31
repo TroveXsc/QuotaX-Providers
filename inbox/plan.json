@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-f45a6077335e9c411244fc6d",
+  "channel": "beta",
+  "baseCatalogSHA256": "b357e90f14b5633e3f811276d7f7df09a065766ce857caa5cc1fdc82564404bb",
+  "catalogSHA256": "f45a6077335e9c411244fc6d34fbddb32e3b497b701029dd93f6ed24cd4e9ab1",
+  "releaseTags": [
+    "grok-v1.0.2-r2"
+  ]
+}
