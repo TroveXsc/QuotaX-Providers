@@ -5,9 +5,9 @@
     "type": "quotaxProviderCatalog",
     "sourceId": "quotax-beta",
     "coverage": "completeSourceSnapshot",
-    "publicationSequence": 2,
-    "publishedAt": "2026-10-31T09:42:58.877Z",
-    "expiresAt": "2027-01-29T09:42:58.877Z",
+    "publicationSequence": 3,
+    "publishedAt": "2026-10-31T11:11:38.711Z",
+    "expiresAt": "2027-01-29T11:11:38.711Z",
     "entries": [
       {
         "providerId": "com.quotax.claude-subscription",
@@ -45,7 +45,7 @@
     {
       "algorithm": "Ed25519",
       "keyId": "quotax-provider-2026",
-      "signatureBase64": "+sf7hN6qrd8q8mmedlVtjSh0jZrpUrNXYupoHqplP6dn1szSG9R9KBhds/T+PUht6607qBPvLx1ROBc7POE4CQ=="
+      "signatureBase64": "vKlvpK/i+G1BY6l790t3PSFKuAN0HmnK7HIu0KwKy/1NnpucdLfONSO/fI4sXtP2mUQ8WL2yDr+2r9BbWUAtBw=="
     }
   ]
 }

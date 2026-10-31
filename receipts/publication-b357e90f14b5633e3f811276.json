@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-b357e90f14b5633e3f811276",
+  "channel": "beta",
+  "catalogSHA256": "b357e90f14b5633e3f811276d7f7df09a065766ce857caa5cc1fdc82564404bb",
+  "catalogSequence": 3,
+  "publishedAt": "2026-10-31T11:12:02.085Z",
+  "toolingCommit": "c8d3119dde5b234d3eb2c921c244453074fcfd00",
+  "releases": []
+}
