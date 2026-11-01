@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "canonicalization": "RFC8785",
+  "signed": {
+    "type": "quotaxProviderRelease",
+    "providerId": "com.quotax.grok",
+    "releaseVersion": "1.0.4",
+    "authContractId": "grok-auth-v1",
+    "extensionSchemaVersion": 3,
+    "minAppVersion": "0.7.0",
+    "publicationSequence": 4,
+    "publishedAt": "2026-11-01T13:40:05.124Z",
+    "expiresAt": "2027-11-01T13:40:05.124Z",
+    "document": {
+      "url": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.4-r4/provider.json",
+      "sha256": "d24bef3193d6990a6e4ce0c8582350300945fa5b761b692dab10d44465743bb3",
+      "byteLength": 125801,
+      "mediaType": "application/json",
+      "schemaId": "https://schemas.quotax.invalid/proposal/provider-document/v1"
+    },
+    "assets": [],
+    "compatibility": {
+      "minimumExtensionSchemaVersion": 3,
+      "requiredUIContracts": [
+        {
+          "contract": "ui-card/v1",
+          "components": [
+            {
+              "id": "qx.grid",
+              "version": 1
+            },
+            {
+              "id": "qx.icon",
+              "version": 1
+            },
+            {
+              "id": "qx.progress",
+              "version": 1
+            },
+            {
+              "id": "qx.row",
+              "version": 1
+            },
+            {
+              "id": "qx.stack",
+              "version": 1
+            },
+            {
+              "id": "qx.text",
+              "version": 1
+            },
+            {
+              "id": "qx.value",
+              "version": 1
+            }
+          ]
+        }
+      ],
+      "requiredAuthCallbackProfiles": [
+        "grok.official-client-callback"
+      ],
+      "requiredNativeCapabilities": [
+        "composition.v1",
+        "decimal.exact.v1",
+        "oauth.pkce.v1",
+        "provider.v3",
+        "ui-asset.download.v1",
+        "ui-card.rich.v1",
+        "ui-card.v1"
+      ]
+    }
+  },
+  "signatures": [
+    {
+      "algorithm": "Ed25519",
+      "keyId": "quotax-provider-2026",
+      "signatureBase64": "h1FXbbmnHAGS8u8GIOtl11Lhzq82jusSireNYaQQBOFFZyWk+RELtObCjN1JIWt9MYaBbLCy6C8An+POrZ/zCQ=="
+    }
+  ]
+}

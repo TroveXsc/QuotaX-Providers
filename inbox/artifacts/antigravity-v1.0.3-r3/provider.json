@@ -1,0 +1,3959 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Antigravity",
+    "version": "1.0.2",
+    "description": "Google Antigravity 账号、项目与额度窗口；缺失和旧数据按来源独立保留。"
+  },
+  "servers": [
+    {
+      "url": "https://cloudcode-pa.googleapis.com"
+    }
+  ],
+  "security": [
+    {
+      "access": [
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/cloud-platform"
+      ]
+    }
+  ],
+  "paths": {
+    "/v1/userinfo": {
+      "servers": [
+        {
+          "url": "https://openidconnect.googleapis.com"
+        }
+      ],
+      "get": {
+        "operationId": "getIdentity",
+        "summary": "读取 Google 账号身份",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "antigravity/hub/2.9.1 darwin/arm64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应；验收样例为合成资料",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getIdentityResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权失效"
+          },
+          "403": {
+            "description": "账号或权限不可用"
+          },
+          "429": {
+            "description": "请求受限"
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getIdentity"
+        }
+      }
+    },
+    "/v1internal:loadCodeAssist": {
+      "post": {
+        "operationId": "loadAccount",
+        "summary": "读取已开通账号的项目与套餐",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "antigravity/hub/2.9.1 darwin/arm64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应；验收样例为合成资料",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/loadAccountResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权失效"
+          },
+          "403": {
+            "description": "账号或权限不可用"
+          },
+          "429": {
+            "description": "请求受限"
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "loadAccount"
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "metadata"
+                ],
+                "properties": {
+                  "metadata": {
+                    "type": "object",
+                    "required": [
+                      "ideType",
+                      "platform",
+                      "pluginType"
+                    ],
+                    "properties": {
+                      "ideType": {
+                        "const": "ANTIGRAVITY"
+                      },
+                      "platform": {
+                        "const": "PLATFORM_UNSPECIFIED"
+                      },
+                      "pluginType": {
+                        "const": "GEMINI"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1internal:retrieveUserQuotaSummary": {
+      "servers": [
+        {
+          "url": "https://daily-cloudcode-pa.googleapis.com"
+        }
+      ],
+      "post": {
+        "operationId": "getQuotaSummary",
+        "summary": "读取实际测量的分组额度",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "antigravity/hub/2.9.1 darwin/arm64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功响应；验收样例为合成资料",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getQuotaSummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权失效"
+          },
+          "403": {
+            "description": "账号或权限不可用"
+          },
+          "429": {
+            "description": "请求受限"
+          }
+        },
+        "x-quotax": {
+          "runtimeRef": "getQuotaSummary"
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "project"
+                ],
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "access": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "tokenUrl": "https://oauth2.googleapis.com/token",
+            "scopes": {
+              "openid": "读取账号身份或额度所需权限",
+              "email": "读取账号身份或额度所需权限",
+              "profile": "读取账号身份或额度所需权限",
+              "https://www.googleapis.com/auth/cloud-platform": "读取账号身份或额度所需权限"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "getIdentityResponse": {
+        "type": "object",
+        "required": [
+          "sub"
+        ],
+        "properties": {
+          "sub": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "loadAccountResponse": {
+        "type": "object",
+        "properties": {
+          "cloudaicompanionProject": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "getQuotaSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "object",
+            "properties": {
+              "groups": {
+                "type": "array"
+              }
+            }
+          },
+          "groups": {
+            "type": "array"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "response"
+            ]
+          },
+          {
+            "required": [
+              "groups"
+            ]
+          }
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "x-quotax": {
+    "schemaVersion": 3,
+    "provider": {
+      "id": "dev.quotax.antigravity",
+      "releaseVersion": "1.0.3",
+      "authContractId": "antigravity-auth-v1",
+      "publisher": "custom",
+      "name": {
+        "key": "antigravity",
+        "fallback": "Antigravity"
+      },
+      "description": {
+        "key": "provider.description",
+        "fallback": "Google Antigravity 账号、项目与额度窗口；缺失和旧数据按来源独立保留。"
+      },
+      "minAppVersion": "0.7.0",
+      "iconAssetId": "provider.antigravity",
+      "defaultLocale": "zh-Hans"
+    },
+    "engines": {
+      "jmespath": {
+        "implementation": "jmespath-swift",
+        "version": "1.1.1",
+        "revision": "129d1f18169e02d548c11d32a8df7b69a7fd32d6"
+      },
+      "jsonata": {
+        "version": "2.2.2",
+        "distribution": "bundled",
+        "bundleSHA256": "69ff11451fd9b46fadf9008b9d6c291f87de16bea99abffb48fcaa1dccab03f6"
+      },
+      "decimalProfile": "quotax-decimal-v1",
+      "requiredNativeCapabilities": [
+        "ui-card.v1",
+        "decimal.exact.v1",
+        "ui-asset.download.v1"
+      ]
+    },
+    "strings": {
+      "zh-Hans": {},
+      "en": {}
+    },
+    "authMethods": {
+      "primary": {
+        "kind": "oauth2",
+        "componentRef": {
+          "id": "auth.oauth2.pkce",
+          "version": 2
+        },
+        "securityScheme": "access",
+        "label": {
+          "key": "label",
+          "fallback": "Google OAuth · PKCE"
+        },
+        "scope": "connection",
+        "identity": {
+          "kind": "authenticatedResponse",
+          "operationId": "getIdentity",
+          "subject": {
+            "engine": "jmespath",
+            "expression": "sub"
+          },
+          "displayName": {
+            "engine": "jmespath",
+            "expression": "email"
+          },
+          "subjectNamespace": "google",
+          "assurance": "authenticatedProviderResponse"
+        },
+        "extraHeaderBindings": [],
+        "authorizationCode": {
+          "clientId": "1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com",
+          "callbackProfileId": "google.official-client-callback",
+          "pkce": "S256",
+          "state": "required",
+          "nonce": "notUsed",
+          "requestedScopes": [
+            "openid",
+            "email",
+            "profile",
+            "https://www.googleapis.com/auth/cloud-platform"
+          ],
+          "authorizationParameters": {
+            "access_type": "offline",
+            "prompt": "consent"
+          }
+        },
+        "tokenExchange": {
+          "clientAuthentication": "client_secret_post",
+          "requestEncoding": "application/x-www-form-urlencoded",
+          "responseMapping": {
+            "accessToken": {
+              "engine": "jmespath",
+              "expression": "access_token"
+            },
+            "tokenType": {
+              "engine": "jmespath",
+              "expression": "token_type"
+            },
+            "expiresIn": {
+              "engine": "jmespath",
+              "expression": "expires_in"
+            },
+            "refreshToken": {
+              "engine": "jmespath",
+              "expression": "refresh_token"
+            },
+            "idToken": null,
+            "grantedScopes": {
+              "engine": "jmespath",
+              "expression": "scope"
+            },
+            "scopeEncoding": "spaceDelimitedString",
+            "missingGrantedScopes": "retainPreviousOrRequested",
+            "missingRefreshToken": "keepPrevious",
+            "tokenTypePolicy": "requireBearer",
+            "missingExpiry": "reject"
+          },
+          "clientSecretRef": {
+            "kind": "appCredentialProfile",
+            "profileId": "google.official-client"
+          }
+        },
+        "refresh": {
+          "mode": "refreshToken",
+          "rotation": "atomicKeepOldUntilSuccess",
+          "invalidGrant": "reauthorizationRequired"
+        },
+        "verifyOperationId": "getIdentity"
+      }
+    },
+    "policyGroups": {
+      "read": {
+        "schedule": {
+          "kind": "interval",
+          "seconds": 300,
+          "toleranceSeconds": 60
+        },
+        "timeoutSeconds": 20,
+        "retry": {
+          "maxAttempts": 2,
+          "baseDelaySeconds": 2,
+          "maxDelaySeconds": 30,
+          "jitter": "full",
+          "retryOn": [
+            "network",
+            "timeout",
+            "http429",
+            "http5xx"
+          ]
+        },
+        "cache": {
+          "freshForSeconds": 900,
+          "maxSnapshots": 10,
+          "maxSnapshotBytes": 1048576,
+          "maxTotalBytesPerConnection": 10485760,
+          "onError": "keepLastSuccess",
+          "retention": "independentLastSuccess"
+        },
+        "rateLimit": {
+          "scope": {
+            "kind": "connection"
+          },
+          "requests": 10,
+          "perSeconds": 60,
+          "respectRetryAfter": true
+        },
+        "concurrency": {
+          "scope": {
+            "kind": "connection"
+          },
+          "maxInFlight": 2
+        },
+        "coalescing": "identicalRequestIdentityOnly"
+      }
+    },
+    "operationRuntime": {
+      "getIdentity": {
+        "policyRef": "read",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "refresh",
+          "targetId": "quota"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/getIdentityResponse",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      },
+      "loadAccount": {
+        "policyRef": "read",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "refresh",
+          "targetId": "quota"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/loadAccountResponse",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      },
+      "getQuotaSummary": {
+        "policyRef": "read",
+        "schedulingOwner": {
+          "kind": "workflow",
+          "workflowId": "refresh",
+          "targetId": "quota"
+        },
+        "idempotency": "safe",
+        "success": {
+          "httpStatuses": [
+            200
+          ],
+          "responseSchemaRef": "#/components/schemas/getQuotaSummaryResponse",
+          "condition": null
+        },
+        "response": {
+          "mediaTypes": [
+            "application/json"
+          ],
+          "parse": "losslessJSON",
+          "maxBodyBytes": 1048576
+        },
+        "requestIdentity": {
+          "algorithm": "quotax-request-key-v1",
+          "partition": "connectionAuthReleaseAndBinding",
+          "queryOrder": "preserveDuplicateOrder",
+          "sensitiveInputDigest": "deviceHMAC"
+        },
+        "redaction": {
+          "requestHeaders": [
+            "authorization",
+            "cookie"
+          ],
+          "requestQueryNames": [],
+          "requestBodyPointers": [],
+          "responseBodyPointers": []
+        },
+        "failureClassification": {
+          "reauthorizeStatuses": [
+            401
+          ],
+          "rateLimitedStatuses": [
+            429
+          ]
+        }
+      }
+    },
+    "sources": {
+      "self": {
+        "providerId": "dev.quotax.antigravity",
+        "release": {
+          "kind": "thisRelease"
+        },
+        "binding": {
+          "kind": "currentConnection"
+        },
+        "allowedOperationIds": [
+          "getIdentity",
+          "loadAccount",
+          "getQuotaSummary"
+        ]
+      }
+    },
+    "outputContracts": {
+      "MetricPayload/v1": {
+        "kind": "registered",
+        "schemaRef": "https://schemas.quotax.invalid/proposal/provider-extension/v3#/$defs/MetricPayload"
+      },
+      "AccountDetails/v1": {
+        "kind": "embedded",
+        "schemaVersion": "2020-12",
+        "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "$ref": "#/$defs/text"
+            },
+            "available": {
+              "type": "boolean"
+            },
+            "period": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "start",
+                "end"
+              ],
+              "properties": {
+                "start": {
+                  "$ref": "#/$defs/time"
+                },
+                "end": {
+                  "$ref": "#/$defs/time"
+                }
+              }
+            },
+            "facts": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/fact"
+              }
+            },
+            "meters": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/meter"
+              }
+            },
+            "balances": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "$ref": "#/$defs/balance"
+              }
+            }
+          },
+          "$defs": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+            },
+            "text": {
+              "description": "原样展示的文本，或引用 Provider strings 表的键；fallback 在键缺失时使用。",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "key"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                    },
+                    "fallback": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "decimal": {
+              "description": "十进制文本，保持原始精度，不经过浮点数。",
+              "type": "string",
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+            },
+            "time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "amount": {
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/decimal"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                "unit": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "oneOf": [
+                {
+                  "required": [
+                    "currency"
+                  ]
+                },
+                {
+                  "required": [
+                    "unit"
+                  ]
+                }
+              ]
+            },
+            "meter": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "usedRatio"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "usedRatio": {
+                  "description": "已用比例，0.42 表示 42%；可以超过 1；未知为 null。",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "used": {
+                  "$ref": "#/$defs/amount"
+                },
+                "limit": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "resetAt": {
+                  "$ref": "#/$defs/time"
+                },
+                "windowSeconds": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "balance": {
+              "type": "object",
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "amount": {
+                  "$ref": "#/$defs/amount"
+                },
+                "unlimited": {
+                  "type": "boolean"
+                },
+                "breakdown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "label",
+                      "amount"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "amount": {
+                        "$ref": "#/$defs/amount"
+                      }
+                    }
+                  }
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "amount"
+                  ]
+                },
+                {
+                  "required": [
+                    "unlimited"
+                  ],
+                  "properties": {
+                    "unlimited": {
+                      "const": true
+                    }
+                  }
+                }
+              ]
+            },
+            "fact": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "label": {
+                  "$ref": "#/$defs/text"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "count"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "amount"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "amount": {
+                          "$ref": "#/$defs/amount"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "text": {
+                          "$ref": "#/$defs/text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "time"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "time": {
+                          "$ref": "#/$defs/time"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "schemaSHA256": "a56704e41312de2c3844eeb0288037c9b7f26d1b295659e25110bbff9698679b"
+      }
+    },
+    "transforms": {
+      "metric.gemini-weekly": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "quota": {
+            "operationId": "getQuotaSummary",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n $groups := $exists(quota.response.groups) ? quota.response.groups : quota.groups;\n $fraction := function($b) {$type($b.remaining.remainingFraction) = \"number\" ? $b.remaining.remainingFraction : $b.remaining.case = \"remainingFraction\" ? $b.remaining.value};\n $buckets := $groups.buckets;\n $valid := $buckets[($exists(disabled) = false or disabled != true) and $type($fraction($)) = \"number\" and $fraction($) >= 0 and $fraction($) <= 1];\n $meters := [$valid.{\"id\":bucketId,\"label\":bucketId = \"gemini-5h\" ? \"Gemini · 5 小时\" : bucketId = \"gemini-weekly\" ? \"Gemini · 每周\" : bucketId = \"3p-5h\" ? \"Claude / GPT · 5 小时\" : \"Claude / GPT · 每周\",\"usedRatio\":$round(1-$fraction($),6),\"resetAt\":$type(resetTime) = \"string\" ? resetTime}];\n $count($meters) > 0 ? {\"meters\":$meters}\n)); $m := $raw.meters[id=\"gemini-weekly\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.gemini-5h": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "quota": {
+            "operationId": "getQuotaSummary",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n $groups := $exists(quota.response.groups) ? quota.response.groups : quota.groups;\n $fraction := function($b) {$type($b.remaining.remainingFraction) = \"number\" ? $b.remaining.remainingFraction : $b.remaining.case = \"remainingFraction\" ? $b.remaining.value};\n $buckets := $groups.buckets;\n $valid := $buckets[($exists(disabled) = false or disabled != true) and $type($fraction($)) = \"number\" and $fraction($) >= 0 and $fraction($) <= 1];\n $meters := [$valid.{\"id\":bucketId,\"label\":bucketId = \"gemini-5h\" ? \"Gemini · 5 小时\" : bucketId = \"gemini-weekly\" ? \"Gemini · 每周\" : bucketId = \"3p-5h\" ? \"Claude / GPT · 5 小时\" : \"Claude / GPT · 每周\",\"usedRatio\":$round(1-$fraction($),6),\"resetAt\":$type(resetTime) = \"string\" ? resetTime}];\n $count($meters) > 0 ? {\"meters\":$meters}\n)); $m := $raw.meters[id=\"gemini-5h\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.3p-weekly": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "quota": {
+            "operationId": "getQuotaSummary",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n $groups := $exists(quota.response.groups) ? quota.response.groups : quota.groups;\n $fraction := function($b) {$type($b.remaining.remainingFraction) = \"number\" ? $b.remaining.remainingFraction : $b.remaining.case = \"remainingFraction\" ? $b.remaining.value};\n $buckets := $groups.buckets;\n $valid := $buckets[($exists(disabled) = false or disabled != true) and $type($fraction($)) = \"number\" and $fraction($) >= 0 and $fraction($) <= 1];\n $meters := [$valid.{\"id\":bucketId,\"label\":bucketId = \"gemini-5h\" ? \"Gemini · 5 小时\" : bucketId = \"gemini-weekly\" ? \"Gemini · 每周\" : bucketId = \"3p-5h\" ? \"Claude / GPT · 5 小时\" : \"Claude / GPT · 每周\",\"usedRatio\":$round(1-$fraction($),6),\"resetAt\":$type(resetTime) = \"string\" ? resetTime}];\n $count($meters) > 0 ? {\"meters\":$meters}\n)); $m := $raw.meters[id=\"3p-weekly\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "metric.3p-5h": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "quota": {
+            "operationId": "getQuotaSummary",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n $groups := $exists(quota.response.groups) ? quota.response.groups : quota.groups;\n $fraction := function($b) {$type($b.remaining.remainingFraction) = \"number\" ? $b.remaining.remainingFraction : $b.remaining.case = \"remainingFraction\" ? $b.remaining.value};\n $buckets := $groups.buckets;\n $valid := $buckets[($exists(disabled) = false or disabled != true) and $type($fraction($)) = \"number\" and $fraction($) >= 0 and $fraction($) <= 1];\n $meters := [$valid.{\"id\":bucketId,\"label\":bucketId = \"gemini-5h\" ? \"Gemini · 5 小时\" : bucketId = \"gemini-weekly\" ? \"Gemini · 每周\" : bucketId = \"3p-5h\" ? \"Claude / GPT · 5 小时\" : \"Claude / GPT · 每周\",\"usedRatio\":$round(1-$fraction($),6),\"resetAt\":$type(resetTime) = \"string\" ? resetTime}];\n $count($meters) > 0 ? {\"meters\":$meters}\n)); $m := $raw.meters[id=\"3p-5h\"][0]; $m.unlimited=true ? {\"availability\":\"available\",\"value\":{\"kind\":\"unlimited\",\"unit\":null},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : ($exists($m.usedRatio) or ($exists($m.used.value) and $exists($m.limit.value))) ? {\"availability\":\"available\",\"value\":{\"kind\":\"ratio\",\"remainingPercent\":$exists($m.used.value) and $exists($m.limit.value) and $number($m.limit.value)>0 ? $qxDecimalMultiply($qxDecimalDivide($qxDecimalSubtract($m.limit.value,$m.used.value),$m.limit.value),\"100\") : $qxDecimalSubtract(\"100\",$qxDecimalMultiply($string($m.usedRatio),\"100\"))},\"reset\":$exists($m.resetAt) ? {\"kind\":\"scheduled\",\"at\":$fromMillis($toMillis($m.resetAt)),\"confidence\":\"exact\",\"cycleKey\":null,\"lastConfirmedResetAt\":null} : {\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]} : {\"availability\":\"notProvided\",\"value\":null,\"reset\":{\"kind\":\"unknown\"},\"entitlementSubjectKeys\":[]})",
+        "outputContractId": "MetricPayload/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.quotaWindows": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "quota": {
+            "operationId": "getQuotaSummary",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ((\n $groups := $exists(quota.response.groups) ? quota.response.groups : quota.groups;\n $fraction := function($b) {$type($b.remaining.remainingFraction) = \"number\" ? $b.remaining.remainingFraction : $b.remaining.case = \"remainingFraction\" ? $b.remaining.value};\n $buckets := $groups.buckets;\n $valid := $buckets[($exists(disabled) = false or disabled != true) and $type($fraction($)) = \"number\" and $fraction($) >= 0 and $fraction($) <= 1];\n $meters := [$valid.{\"id\":bucketId,\"label\":bucketId = \"gemini-5h\" ? \"Gemini · 5 小时\" : bucketId = \"gemini-weekly\" ? \"Gemini · 每周\" : bucketId = \"3p-5h\" ? \"Claude / GPT · 5 小时\" : \"Claude / GPT · 每周\",\"usedRatio\":$round(1-$fraction($),6),\"resetAt\":$type(resetTime) = \"string\" ? resetTime}];\n $count($meters) > 0 ? {\"meters\":$meters}\n)); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      },
+      "details.identity": {
+        "engine": "jsonata",
+        "engineVersion": "2.2.2",
+        "inputs": {
+          "identity": {
+            "operationId": "getIdentity",
+            "sourceId": "self",
+            "root": "responseBody",
+            "query": {
+              "engine": "jmespath",
+              "expression": "@"
+            },
+            "required": true,
+            "missingPolicy": "failGroup",
+            "losslessDecimalPointers": [],
+            "snapshot": {
+              "kind": "latestSuccess"
+            }
+          }
+        },
+        "precondition": null,
+        "expression": "($raw := ({\"facts\":[{\"id\":\"email\",\"label\":\"Google 账号\",\"value\":{\"text\":identity.email}}]}); $merge([$exists($raw.plan)?{\"plan\":$raw.plan}:{},$exists($raw.available)?{\"available\":$raw.available}:{},$exists($raw.period)?{\"period\":$raw.period}:{},$exists($raw.facts)?{\"facts\":$raw.facts}:{},$exists($raw.meters)?{\"meters\":$raw.meters}:{},$exists($raw.balances)?{\"balances\":$raw.balances}:{}]))",
+        "outputContractId": "AccountDetails/v1",
+        "requiredHostFunctions": [
+          "qxDecimalSubtract",
+          "qxDecimalMultiply",
+          "qxDecimalDivide"
+        ],
+        "limits": {
+          "maxMilliseconds": 500,
+          "maxInputBytes": 1048576,
+          "maxOutputBytes": 262144,
+          "maxDepth": 32
+        },
+        "onError": "keepLastValid",
+        "timeBasis": "oldestRequiredInput",
+        "cacheKey": "definitionBindingSnapshotsEngineAndContract-v1"
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "gemini-weekly",
+        "label": {
+          "key": "gemini-weekly",
+          "fallback": "Gemini · 每周"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.gemini-weekly",
+        "freshForSeconds": 900,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "gemini-5h",
+        "label": {
+          "key": "gemini-5h",
+          "fallback": "Gemini · 5 小时"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.gemini-5h",
+        "freshForSeconds": 900,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "3p-weekly",
+        "label": {
+          "key": "3p-weekly",
+          "fallback": "Claude / GPT · 每周"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.3p-weekly",
+        "freshForSeconds": 900,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      },
+      {
+        "metricId": "3p-5h",
+        "label": {
+          "key": "3p-5h",
+          "fallback": "Claude / GPT · 5 小时"
+        },
+        "valueKind": "ratio",
+        "unit": null,
+        "adapterId": "metric.3p-5h",
+        "freshForSeconds": 900,
+        "supportsUnlimited": true,
+        "entitlementKey": null,
+        "resetCapability": "unknown"
+      }
+    ],
+    "primaryMetricId": "gemini-weekly",
+    "entitlements": [],
+    "workflows": {
+      "refresh": {
+        "policyRef": "read",
+        "steps": [
+          {
+            "stepId": "identity",
+            "sourceId": "self",
+            "operationId": "getIdentity",
+            "dependsOn": [],
+            "when": null,
+            "bindings": [],
+            "required": true,
+            "onFailure": "cancelDependents"
+          },
+          {
+            "stepId": "account",
+            "sourceId": "self",
+            "operationId": "loadAccount",
+            "dependsOn": [
+              {
+                "stepId": "identity",
+                "require": "succeeded"
+              }
+            ],
+            "when": null,
+            "bindings": [
+              {
+                "target": {
+                  "in": "body",
+                  "pointer": "/metadata"
+                },
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "`{\"ideType\":\"ANTIGRAVITY\",\"platform\":\"PLATFORM_UNSPECIFIED\",\"pluginType\":\"GEMINI\"}`"
+                },
+                "missingPolicy": "failStep"
+              }
+            ],
+            "required": true,
+            "onFailure": "cancelDependents"
+          },
+          {
+            "stepId": "quota",
+            "sourceId": "self",
+            "operationId": "getQuotaSummary",
+            "dependsOn": [
+              {
+                "stepId": "account",
+                "require": "succeeded"
+              }
+            ],
+            "when": null,
+            "bindings": [
+              {
+                "target": {
+                  "in": "body",
+                  "pointer": "/project"
+                },
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "steps.account.response.body.cloudaicompanionProject.id || steps.account.response.body.cloudaicompanionProject"
+                },
+                "missingPolicy": "failStep"
+              }
+            ],
+            "required": true,
+            "onFailure": "cancelDependents"
+          }
+        ],
+        "targets": {
+          "quota": [
+            "quota"
+          ]
+        },
+        "execution": "targetDependencyClosure",
+        "maxConcurrentSteps": 1,
+        "maxRequests": 4,
+        "maxDurationSeconds": 60,
+        "cancellation": "cancelOnConnectionDeletionAuthOrReleaseChange"
+      }
+    },
+    "assets": [
+      {
+        "assetId": "provider.antigravity",
+        "version": "1.97.1",
+        "sha256": "3bd69438baced61c3820801c74a877a50e86087297637ef81d1d6e53ba04719c",
+        "role": "logo",
+        "mimeType": "image/png",
+        "pixelWidth": 640,
+        "pixelHeight": 640,
+        "byteLength": 4218,
+        "colorMode": "monochrome",
+        "licenseId": "lobe-icons-mit",
+        "source": {
+          "kind": "download",
+          "url": "https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/antigravity.png"
+        }
+      }
+    ],
+    "licenses": {
+      "lobe-icons-mit": {
+        "name": "MIT",
+        "url": "https://github.com/lobehub/lobe-icons/blob/master/LICENSE",
+        "attribution": "Copyright (c) 2023 LobeHub. MIT License; see license URL."
+      }
+    },
+    "alerts": []
+  },
+  "x-quotax-app": {
+    "contractVersion": 1,
+    "supplementDetailOnly": [],
+    "connectionKind": "account",
+    "authMethodId": "primary",
+    "connectionFields": {},
+    "requestBindings": {},
+    "connectionEndpoint": null,
+    "resourceCollection": null,
+    "manualFacts": {},
+    "metricPresentation": {
+      "gemini-weekly": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": null,
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "gemini-weekly"
+        },
+        "unitLabel": "%"
+      },
+      "gemini-5h": {
+        "role": "remaining",
+        "windowSeconds": 18000,
+        "expirySubject": null,
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "gemini-5h"
+        },
+        "unitLabel": "%"
+      },
+      "3p-weekly": {
+        "role": "remaining",
+        "windowSeconds": 604800,
+        "expirySubject": null,
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "3p-weekly"
+        },
+        "unitLabel": "%"
+      },
+      "3p-5h": {
+        "role": "remaining",
+        "windowSeconds": 18000,
+        "expirySubject": null,
+        "budgetFactId": null,
+        "detailItem": {
+          "kind": "meter",
+          "id": "3p-5h"
+        },
+        "unitLabel": "%"
+      }
+    },
+    "refresh": {
+      "workflowId": "refresh",
+      "targetId": "quota"
+    },
+    "reminderDefaults": {
+      "warning": 20,
+      "critical": 10
+    },
+    "availabilityRules": [
+      {
+        "blockedMetricId": "gemini-5h",
+        "byMetricId": "gemini-weekly",
+        "message": "Gemini 每周额度已用尽。"
+      },
+      {
+        "blockedMetricId": "3p-5h",
+        "byMetricId": "3p-weekly",
+        "message": "Claude / GPT 每周额度已用尽。"
+      }
+    ],
+    "iconAssetId": "provider.antigravity",
+    "iconMonochrome": false,
+    "detailAdapterIds": [
+      "details.quotaWindows",
+      "details.identity"
+    ]
+  },
+  "x-quotax-ui": {
+    "contractVersion": 1,
+    "providerId": "dev.quotax.antigravity",
+    "name": "Antigravity",
+    "imports": [],
+    "exports": [
+      {
+        "id": "dev.quotax.antigravity:numeric",
+        "version": 1
+      },
+      {
+        "id": "dev.quotax.antigravity:grid",
+        "version": 1
+      },
+      {
+        "id": "dev.quotax.antigravity:overview",
+        "version": 1
+      },
+      {
+        "id": "dev.quotax.antigravity:ticks",
+        "version": 1
+      },
+      {
+        "id": "dev.quotax.antigravity:account",
+        "version": 1
+      },
+      {
+        "id": "dev.quotax.antigravity:account-detail",
+        "version": 1
+      }
+    ],
+    "componentPresets": [],
+    "cards": [
+      {
+        "id": "dev.quotax.antigravity:numeric",
+        "version": 1,
+        "name": "numeric",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "numeric",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Antigravity"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 6
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 13
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 44
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 8
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "dev.quotax.antigravity:grid",
+        "version": 1,
+        "name": "grid",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "grid",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Antigravity"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "grid",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 30
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 6
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "dev.quotax.antigravity:overview",
+        "version": 1,
+        "name": "overview",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Antigravity"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 1,
+                  "gap": 14
+                },
+                "children": [
+                  {
+                    "id": "head",
+                    "type": "row",
+                    "style": {
+                      "gap": 8
+                    },
+                    "children": [
+                      {
+                        "id": "icon",
+                        "type": "icon",
+                        "componentRef": {
+                          "id": "qx.icon",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "assetId": {
+                            "kind": "item",
+                            "property": "assetId"
+                          }
+                        }
+                      },
+                      {
+                        "id": "label",
+                        "type": "text",
+                        "style": {
+                          "fontSize": 13
+                        },
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "item",
+                            "property": "label"
+                          }
+                        }
+                      },
+                      {
+                        "id": "value",
+                        "type": "value",
+                        "style": {
+                          "fontSize": 17,
+                          "align": "end"
+                        },
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "item",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "item",
+                            "property": "unit"
+                          }
+                        }
+                      }
+                    ],
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "continuous",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 4
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "dev.quotax.antigravity:ticks",
+        "version": 1,
+        "name": "ticks",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "ticks",
+          "target": "medium",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "card",
+            "type": "stack",
+            "style": {
+              "gap": 14
+            },
+            "children": [
+              {
+                "id": "title",
+                "type": "text",
+                "style": {
+                  "fontSize": 13
+                },
+                "componentRef": {
+                  "id": "qx.text",
+                  "version": 1
+                },
+                "inputs": {
+                  "text": {
+                    "kind": "literal",
+                    "value": "Antigravity"
+                  }
+                },
+                "role": "header"
+              },
+              {
+                "id": "fields",
+                "type": "stack",
+                "repeat": "fields",
+                "style": {
+                  "columns": 2,
+                  "gap": 16
+                },
+                "children": [
+                  {
+                    "id": "label",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 12
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "label"
+                      }
+                    }
+                  },
+                  {
+                    "id": "value",
+                    "type": "value",
+                    "style": {
+                      "fontSize": 34
+                    },
+                    "componentRef": {
+                      "id": "qx.value",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "unit": {
+                        "kind": "item",
+                        "property": "unit"
+                      }
+                    }
+                  },
+                  {
+                    "id": "progress",
+                    "type": "progress",
+                    "variant": "segmented",
+                    "orientation": "horizontal",
+                    "style": {
+                      "thickness": 10
+                    },
+                    "componentRef": {
+                      "id": "qx.progress",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "value": {
+                        "kind": "item",
+                        "property": "value"
+                      },
+                      "minimum": {
+                        "kind": "literal",
+                        "value": 0
+                      },
+                      "maximum": {
+                        "kind": "item",
+                        "property": "capacity"
+                      }
+                    }
+                  },
+                  {
+                    "id": "time",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "observedAt"
+                      }
+                    }
+                  },
+                  {
+                    "id": "source",
+                    "type": "text",
+                    "style": {
+                      "fontSize": 11
+                    },
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "item",
+                        "property": "accountName"
+                      }
+                    }
+                  }
+                ],
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                }
+              }
+            ],
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "dev.quotax.antigravity:account",
+        "version": 1,
+        "name": "账号概览",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "large",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "account-card",
+            "type": "stack",
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            },
+            "children": [
+              {
+                "id": "account-sections",
+                "type": "grid",
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "gemini-weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "gemini-weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "gemini-5h-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "gemini-5h-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "metric-3p-weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "metric-3p-weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "metric-3p-5h-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "metric-3p-5h-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  }
+                ],
+                "style": {
+                  "columns": 2,
+                  "gap": 20
+                }
+              }
+            ],
+            "style": {
+              "gap": 16
+            }
+          }
+        }
+      },
+      {
+        "id": "dev.quotax.antigravity:account-detail",
+        "version": 1,
+        "name": "账号详情",
+        "slots": {},
+        "design": {
+          "version": 1,
+          "preset": "overview",
+          "target": "large",
+          "device": "iPhone",
+          "mode": "automatic",
+          "overrides": [],
+          "itemOrder": [],
+          "root": {
+            "id": "account-card",
+            "type": "stack",
+            "componentRef": {
+              "id": "qx.stack",
+              "version": 1
+            },
+            "children": [
+              {
+                "id": "account-header",
+                "type": "stack",
+                "componentRef": {
+                  "id": "qx.stack",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "account-title",
+                    "type": "text",
+                    "componentRef": {
+                      "id": "qx.text",
+                      "version": 1
+                    },
+                    "inputs": {
+                      "text": {
+                        "kind": "context",
+                        "property": "title"
+                      }
+                    },
+                    "style": {
+                      "fontSize": 18
+                    }
+                  },
+                  {
+                    "id": "accountEmail-info",
+                    "type": "row",
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "accountEmail-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "accountEmail",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 12
+                        }
+                      },
+                      {
+                        "id": "accountEmail-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "accountEmail",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "accountEmail",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    }
+                  },
+                  {
+                    "id": "project-info",
+                    "type": "row",
+                    "componentRef": {
+                      "id": "qx.row",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "project-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "project",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 12
+                        }
+                      },
+                      {
+                        "id": "project-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "project",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "project",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    }
+                  }
+                ],
+                "style": {
+                  "gap": 6
+                },
+                "role": "header"
+              },
+              {
+                "id": "account-sections",
+                "type": "grid",
+                "componentRef": {
+                  "id": "qx.grid",
+                  "version": 1
+                },
+                "children": [
+                  {
+                    "id": "gemini-weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "gemini-weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "gemini-weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "gemini-5h-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "gemini-5h-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "gemini-5h-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "gemini-5h",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "metric-3p-weekly-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "metric-3p-weekly-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "metric-3p-weekly-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-weekly",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  },
+                  {
+                    "id": "metric-3p-5h-quota",
+                    "type": "stack",
+                    "componentRef": {
+                      "id": "qx.stack",
+                      "version": 1
+                    },
+                    "children": [
+                      {
+                        "id": "metric-3p-5h-label",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "label"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 13
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-value",
+                        "type": "value",
+                        "componentRef": {
+                          "id": "qx.value",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "value"
+                          },
+                          "unit": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "unit"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 30
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-progress",
+                        "type": "progress",
+                        "componentRef": {
+                          "id": "qx.progress",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "value": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "value"
+                          },
+                          "minimum": {
+                            "kind": "literal",
+                            "value": 0
+                          },
+                          "maximum": {
+                            "kind": "literal",
+                            "value": 100
+                          }
+                        },
+                        "style": {
+                          "thickness": 8
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-reset",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "resetAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      },
+                      {
+                        "id": "metric-3p-5h-observed",
+                        "type": "text",
+                        "componentRef": {
+                          "id": "qx.text",
+                          "version": 1
+                        },
+                        "inputs": {
+                          "text": {
+                            "kind": "field",
+                            "fieldId": "3p-5h",
+                            "property": "observedAt"
+                          }
+                        },
+                        "style": {
+                          "fontSize": 11
+                        }
+                      }
+                    ],
+                    "style": {
+                      "gap": 6
+                    },
+                    "role": "item"
+                  }
+                ],
+                "style": {
+                  "columns": 2,
+                  "gap": 20
+                }
+              }
+            ],
+            "style": {
+              "gap": 16
+            }
+          }
+        }
+      }
+    ],
+    "uses": [
+      {
+        "id": "numeric",
+        "name": "numeric",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:numeric",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "grid",
+        "name": "grid",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:grid",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "overview",
+        "name": "overview",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:overview",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "ticks",
+        "name": "ticks",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:ticks",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard",
+          "homeWidget",
+          "lockScreenWidget"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "account",
+        "name": "账号概览",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:account",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      },
+      {
+        "id": "account-detail",
+        "name": "账号详情",
+        "cardRef": {
+          "id": "dev.quotax.antigravity:account-detail",
+          "version": 1
+        },
+        "slotBindings": {},
+        "composition": {
+          "contractVersion": 1,
+          "selection": {
+            "kind": "fixed"
+          },
+          "connections": [],
+          "bindings": [
+            {
+              "id": "gemini-weekly",
+              "label": "Gemini · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-weekly"
+              }
+            },
+            {
+              "id": "gemini-5h",
+              "label": "Gemini · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "gemini-5h"
+              }
+            },
+            {
+              "id": "3p-weekly",
+              "label": "Claude / GPT · 每周",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-weekly"
+              }
+            },
+            {
+              "id": "3p-5h",
+              "label": "Claude / GPT · 5 小时",
+              "semantic": {
+                "kind": "percent",
+                "role": "remaining"
+              },
+              "presentation": {
+                "content": "progress",
+                "minimum": 0,
+                "maximum": 100,
+                "prefix": "剩余 "
+              },
+              "source": {
+                "kind": "metric",
+                "connectionKey": "account",
+                "metricId": "3p-5h"
+              }
+            },
+            {
+              "id": "accountEmail",
+              "label": "账号",
+              "semantic": {
+                "kind": "text",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "getIdentity",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "email"
+                }
+              }
+            },
+            {
+              "id": "project",
+              "label": "项目",
+              "semantic": {
+                "kind": "text",
+                "role": "value"
+              },
+              "source": {
+                "kind": "response",
+                "connectionKey": "account",
+                "operationId": "loadAccount",
+                "root": "body",
+                "query": {
+                  "engine": "jmespath",
+                  "expression": "not_null(cloudaicompanionProject.id, cloudaicompanionProject)"
+                }
+              }
+            }
+          ],
+          "transforms": []
+        },
+        "surfaces": [
+          "appCard"
+        ],
+        "primary": {
+          "fieldIds": [
+            "gemini-weekly"
+          ],
+          "fallback": "firstAvailable"
+        },
+        "detailOnly": [],
+        "connectionSlots": {
+          "account": {
+            "providerId": "dev.quotax.antigravity",
+            "required": true
+          }
+        }
+      }
+    ],
+    "anchors": {
+      "home": "account",
+      "serviceDetail": "account-detail"
+    }
+  }
+}
