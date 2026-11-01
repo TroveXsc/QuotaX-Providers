@@ -5,39 +5,39 @@
     "type": "quotaxProviderCatalog",
     "sourceId": "quotax-stable",
     "coverage": "completeSourceSnapshot",
-    "publicationSequence": 3,
-    "publishedAt": "2026-10-31T14:44:15.848Z",
-    "expiresAt": "2027-01-29T14:44:15.848Z",
+    "publicationSequence": 4,
+    "publishedAt": "2026-11-01T16:57:41.988Z",
+    "expiresAt": "2027-01-30T16:57:41.988Z",
     "entries": [
       {
         "providerId": "com.quotax.claude-subscription",
-        "releaseVersion": "1.0.2",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/claude-v1.0.2-r2/release-manifest.json",
-        "manifestSHA256": "8c37e8cd70e5a1907854c38c1bdd904942e48f798e91e2562fe3416f6852ff2c"
+        "releaseVersion": "1.0.3",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/claude-v1.0.3-r3/release-manifest.json",
+        "manifestSHA256": "c4ad8f551f2f70bc2848050ea3cb772719dc9188eebf889d44c2550163b47d1c"
       },
       {
         "providerId": "com.quotax.codex",
-        "releaseVersion": "1.0.2",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/codex-v1.0.2-r2/release-manifest.json",
-        "manifestSHA256": "7f976781b397a48e1bb4c234a710bd852a3a891b72837bf1fd94a2be543b244e"
+        "releaseVersion": "1.0.3",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/codex-v1.0.3-r3/release-manifest.json",
+        "manifestSHA256": "99242b0d2389caf6dd6bec39119140afcb2fae671727b5499fb40e2a8a37b660"
       },
       {
         "providerId": "com.quotax.deepseek",
-        "releaseVersion": "1.0.4",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.4-r3/release-manifest.json",
-        "manifestSHA256": "c2a141a6b376e17bd6b257144a822277f4dc9596a9efb6073407f23a14421a31"
+        "releaseVersion": "1.0.5",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/deepseek-v1.0.5-r4/release-manifest.json",
+        "manifestSHA256": "1110eddac390e0150b865327bbf10c2d962f461112287ff35523a4f99ce8ea04"
       },
       {
         "providerId": "com.quotax.grok",
-        "releaseVersion": "1.0.3",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.3-r3/release-manifest.json",
-        "manifestSHA256": "6c765b1d8baf506863ea8b468352b8fad7604feaef139c965e9cd4c353cee3f0"
+        "releaseVersion": "1.0.4",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/grok-v1.0.4-r4/release-manifest.json",
+        "manifestSHA256": "d1073a73ce99c1c79655aee67ac474df383e69c0c7a1592f8a1edd26a3fce74c"
       },
       {
         "providerId": "dev.quotax.antigravity",
-        "releaseVersion": "1.0.2",
-        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/antigravity-v1.0.2-r2/release-manifest.json",
-        "manifestSHA256": "0958255c7346ad4473855200141eff6af287a67039d42a26845eb214c65b325b"
+        "releaseVersion": "1.0.3",
+        "manifestURL": "https://github.com/TroveXsc/QuotaX-Providers/releases/download/antigravity-v1.0.3-r3/release-manifest.json",
+        "manifestSHA256": "fcb8ac6aea8f6882ae1c42ccb7de8c8d482ff1017fbca8823486f21a9c17e1cd"
       }
     ]
   },
@@ -45,7 +45,7 @@
     {
       "algorithm": "Ed25519",
       "keyId": "quotax-provider-2026",
-      "signatureBase64": "y4wBismO0kRHxeJejdp4Lk2294zgkSoyMFbtd8mxM94Upz3/ed7Lx24726JIxpNy7N5hSjX97ZPey3afwKcUAw=="
+      "signatureBase64": "UsZjLoqeQMUk3Zgp5wrRsjb9l8Rce6VA6EbAx0WFojAf7SUWGFnvsGz2FDxbuMyUw6M5WDrGbAnPJ4XoApafDQ=="
     }
   ]
 }
