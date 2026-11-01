@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "publication-b7dfc749bb2b2aef64d10528",
+  "channel": "beta",
+  "catalogSHA256": "b7dfc749bb2b2aef64d10528edf2053ce4075a141ba46918fb4846a84ad51e99",
+  "catalogSequence": 6,
+  "publishedAt": "2026-11-01T13:49:02.760Z",
+  "toolingCommit": "7881b1a765d582b8fd5bbbc0874da9d330682541",
+  "releases": [
+    {
+      "tag": "claude-v1.0.3-r3",
+      "id": 430614589,
+      "immutable": true
+    },
+    {
+      "tag": "codex-v1.0.3-r3",
+      "id": 430614671,
+      "immutable": true
+    },
+    {
+      "tag": "deepseek-v1.0.5-r4",
+      "id": 430614743,
+      "immutable": true
+    },
+    {
+      "tag": "grok-v1.0.4-r4",
+      "id": 430614822,
+      "immutable": true
+    },
+    {
+      "tag": "antigravity-v1.0.3-r3",
+      "id": 430614888,
+      "immutable": true
+    }
+  ]
+}
